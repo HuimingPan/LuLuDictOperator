@@ -1,0 +1,22 @@
+*__pycache__/
+
+# API Keys and sensitive configuration
+keys.json
+*.env
+.env
+
+# Logs and temporary files
+*.log
+word_notes_results.json
+notebook_results.json
+*_results.json
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
