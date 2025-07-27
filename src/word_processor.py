@@ -118,6 +118,7 @@ class WordNoteProcessor:
                 if self.luludict_client.get_word_note(word, language):
                     print(f"  ⏭️  '{word}' already has a note, skipping...")
                     existing_notes.append(word)
+                    time.sleep(2)
                     continue
                 
                 # Process the word
@@ -137,7 +138,6 @@ class WordNoteProcessor:
                     time.sleep(gemini_delay)
                     
             except Exception as e:
-                time.sleep(2)
                 print(f"  ❌ Error processing '{word}': {e}")
                 failed_uploads.append(word)
         
