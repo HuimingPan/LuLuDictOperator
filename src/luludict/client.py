@@ -237,7 +237,7 @@ class LuLuDictClient:
             if not page_words:
                 print(f"No more words found on page {page}")
                 break
-            all_words.extend(page_words)
+            all_words.extend(words.get("data", []))
             print(f"Found {len(page_words)} words with notes on page {page}")
 
             page += 1

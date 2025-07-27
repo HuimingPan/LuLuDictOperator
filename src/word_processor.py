@@ -201,17 +201,24 @@ class WordNoteProcessor:
             List[str]: Words that don't have notes yet
         """
         words_without_notes = []
-        
+        words_excluded = []
         print(f"🔍 Checking which words already have notes...")
 
         words_with_notes = self.luludict_client.get_all_words_with_notes(language=language, page_size=600)
 
+        for word in words_with_notes:
+            if word.get("word") and word.get("add_time"):
+                if (word["add_time"].startswith("2025-07-28") or
+                    word["add_time"].startswith("2025-07-27") or
+                    word["add_time"].startswith("2025-07-26") or
+                    word["add_time"].startswith("2025-07-25") or
+                    word["add_time"].startswith("2025-07-24")):
+                    words_excluded.append(word)
         for word in words:
-            if word not in words_with_notes:
+            if word not in words_excluded:
                 words_without_notes.append(word)
-            else:
-                print(f"  ⏭️  '{word}' already has a note, skipping...")
-        print(f"✅ Found {len(words_without_notes)} words that need notes")
+        print(f"❌ Found {len(words_excluded)} words to be excluded from processing")
+        print(f"✅ Found {len(words_without_notes)} words to be included for processing")
         return words_without_notes
     
     def retrieve_word_list(self, 

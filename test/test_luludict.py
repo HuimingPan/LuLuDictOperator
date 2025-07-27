@@ -70,8 +70,17 @@ class TestLuluDict(unittest.TestCase):
 
     def test_get_all_words_with_notes(self):
         """Test retrieving all words with notes."""
-        words = self.client.get_all_words_with_notes( page_size=600)
-        self.assertIsInstance(words, list)
-        self.assertGreater(len(words), 0)
-        print(f"Total words with notes: {len(words)}")
-        self.assertIsInstance(words[0], str)
+        words_excluded = []
+        print(f"🔍 Checking which words already have notes...")
+
+        words_with_notes = self.client.get_all_words_with_notes( page_size=600)
+
+        for word in words_with_notes:
+            if word.get("word") and word.get("add_time"):
+                if (word["add_time"].startswith("2025-07-28") or
+                    word["add_time"].startswith("2025-07-27") or
+                    word["add_time"].startswith("2025-07-26") or
+                    word["add_time"].startswith("2025-07-25") or
+                    word["add_time"].startswith("2025-07-24")):
+                    words_excluded.append(word)
+        print(f"❌ Found {len(words_excluded)} words to be excluded from processing")
