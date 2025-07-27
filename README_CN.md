@@ -72,15 +72,15 @@ cp keys.json.example keys.json
 2. 编辑 `keys.json` 文件，填入您的 API 密钥：
 ```json
 {
-    "gemini_api_key": "your_gemini_api_key_here",
-    "luludict_token": "your_luludict_token_here"
+    "Gemini": "your_gemini_api_key_here",
+    "LuLuDict": "your_luludict_token_here"
 }
 ```
 
 3. 获取 Gemini API 密钥：
    - 访问 [Google AI Studio](https://makersuite.google.com/app/apikey)
    - 创建新的 API 密钥
-   - 将密钥填入 `keys.json` 的 `gemini_api_key` 字段
+   - 将密钥填入 `keys.json` 的 `Gemini` 字段
 
 **注意**: `keys.json` 文件已被添加到 `.gitignore` 中，不会被提交到版本控制系统。
 
