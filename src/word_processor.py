@@ -76,24 +76,24 @@ class WordNoteProcessor:
         
         print(f"✅ Found {len(words)} words to process")
         
-        # # Step 1.5: Filter out words that already have notes (if enabled)
-        # if skip_existing_notes:
-        #     print(f"\n🔍 Step 1.5: Filtering out words that already have notes...")
-        #     words = self.exclude_words_with_note(words, language)
+        # Step 1.5: Filter out words that already have notes (if enabled)
+        if skip_existing_notes:
+            print(f"\n🔍 Step 1.5: Filtering out words that already have notes...")
+            words = self.exclude_words_with_note(words, language)
             
-        #     if not words:
-        #         print("✅ All words already have notes! No processing needed.")
-        #         return {
-        #             "total_words_checked": len(words),
-        #             "words_needing_notes": 0,
-        #             "notes_generated": 0,
-        #             "successful_uploads": 0,
-        #             "failed_uploads": 0,
-        #             "existing_notes": [],
-        #             "message": "All words already have notes"
-        #         }
+            if not words:
+                print("✅ All words already have notes! No processing needed.")
+                return {
+                    "total_words_checked": len(words),
+                    "words_needing_notes": 0,
+                    "notes_generated": 0,
+                    "successful_uploads": 0,
+                    "failed_uploads": 0,
+                    "existing_notes": [],
+                    "message": "All words already have notes"
+                }
             
-        #     print(f"📝 {len(words)} words need notes to be generated")
+            print(f"📝 {len(words)} words need notes to be generated")
         
         # Choose processing mode
         if processing_mode == "individual":
@@ -114,9 +114,16 @@ class WordNoteProcessor:
             print(f"\n📝 Processing '{word}' ({i}/{len(words)})...")
             
             try:
-                # Check if word already has a note
-                if self.luludict_client.get_word_note(word, language):
-                    print(f"  ⏭️  '{word}' already has a note, skipping...")
+                # Check if word already has a note and note is created before a specific date.
+                note = self.luludict_client.get_word_note(word, language)
+                if (note and isinstance(note, dict) and "data" in note and 
+                    "add_time" in note["data"] and
+                    (note["data"]["add_time"].startswith("2025-07-28") or 
+                        note["data"]["add_time"].startswith("2025-07-27") or 
+                     note["data"]["add_time"].startswith("2025-07-26") or
+                     note["data"]["add_time"].startswith("2025-07-25") or
+                     note["data"]["add_time"].startswith("2025-07-24"))):
+                    print(f"  ⏭️  '{word}' already has a note created today or later, skipping...")
                     existing_notes.append(word)
                     time.sleep(2)
                     continue
@@ -196,34 +203,15 @@ class WordNoteProcessor:
         words_without_notes = []
         
         print(f"🔍 Checking which words already have notes...")
-        for i, word in enumerate(words, 1):
-            print(f"Checking '{word}' ({i}/{len(words)})...")
-            
-            try:
-                word_details = self.luludict_client.get_word_note(word, language)
-                
-                # Check if the word already has a note
-                if word_details and "data" in word_details:
-                    existing_note = word_details["data"].get("note", "").strip()
-                    if existing_note:
-                        print(f"  ⏭️  '{word}' already has a note, skipping...")
-                    else:
-                        print(f"  ✅ '{word}' needs a note")
-                        words_without_notes.append(word)
-                else:
-                    # If we can't get details, include the word to be safe
-                    print(f"  ⚠️  Couldn't check '{word}', including anyway...")
-                    words_without_notes.append(word)
-                
-                # Small delay to avoid overwhelming the API
-                time.sleep(0.5)
-                
-            except Exception as e:
-                print(f"  ❌ Error checking '{word}': {e}")
-                # Include the word if we can't check
+
+        words_with_notes = self.luludict_client.get_all_words_with_notes(language=language, page_size=600)
+
+        for word in words:
+            if word not in words_with_notes:
                 words_without_notes.append(word)
-        
-        print(f"📋 Found {len(words_without_notes)} words that need notes out of {len(words)} total")
+            else:
+                print(f"  ⏭️  '{word}' already has a note, skipping...")
+        print(f"✅ Found {len(words_without_notes)} words that need notes")
         return words_without_notes
     
     def retrieve_word_list(self, 

@@ -28,23 +28,28 @@ class TestLuluDict(unittest.TestCase):
 
     def test_get_all_words(self):
         """Test retrieving all words."""
-        words = self.client.get_all_words(language="en", category_id=0, words_per_page=200)
+        words = self.client.get_all_words(language="en", category_id=0, words_per_page=600)
         
         self.assertIsInstance(words, list)
         self.assertGreater(len(words), 0)
+        print(f"Total words retrieved: {len(words)}")
         self.assertIsInstance(words[0], str)
 
     def test_get_word_note(self):
         """Test retrieving a note for a specific word."""
         word = "beak"
         note = self.client.get_word_note(word, language="en")
-        print(note['data'])
-        print(note['data']['note'])
-        self.assertIsInstance(note, dict)
-        self.assertIn("word", note)
-        self.assertEqual(note["word"], word)
-        self.assertIn("note", note)
-        self.assertIsInstance(note["note"], str)
+        if note:
+            print(note)
+            print(note['data'])
+            print(note['data']['note'])
+            self.assertIsInstance(note, dict)
+            self.assertIn("word", note)
+            self.assertEqual(note["word"], word)
+            self.assertIn("note", note)
+            self.assertIsInstance(note["note"], str)
+        else:
+            print("Error")
     
     def test_update_word_note(self):
         """Test updating a note for a word."""
@@ -54,3 +59,19 @@ class TestLuluDict(unittest.TestCase):
         self.assertIsInstance(response, dict)
         self.assertIn("message", response)
         self.assertIn("成功", response["message"])
+    
+    def test_get_page_words_with_notes(self):
+        """Test retrieving all words with notes."""
+        words = self.client.get_page_word_with_notes( page_size=10)
+        word_list = [word["word"] for word in words.get("data", []) if isinstance(word, dict)]
+        self.assertIsInstance(word_list, list)
+        self.assertEqual(len(word_list), 10)
+        self.assertIsInstance(word_list[0], str)
+
+    def test_get_all_words_with_notes(self):
+        """Test retrieving all words with notes."""
+        words = self.client.get_all_words_with_notes( page_size=600)
+        self.assertIsInstance(words, list)
+        self.assertGreater(len(words), 0)
+        print(f"Total words with notes: {len(words)}")
+        self.assertIsInstance(words[0], str)

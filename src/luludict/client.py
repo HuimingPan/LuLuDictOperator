@@ -69,7 +69,7 @@ class LuLuDictClient:
             List[str]: List of all words.
         """
         all_words = []
-        page = 1
+        page = 0
         
         try:
             while True:
@@ -181,8 +181,71 @@ class LuLuDictClient:
             return False
             # print(f"Error getting details for word '{word}': {e}")
             # return {"error": str(e)}
+
+    def get_page_word_with_notes(self, page: int = 1, 
+                           page_size: int = 200, language: str = "en"):
+        """
+        Retrieve all word notes from LuLu Dictionary.
+        
+        Args:
+            max_pages (int, optional): Maximum number of pages to fetch.
+            page_size (int): Number of notes per page.
+            
+        Returns:
+            List[Dict[str, Any]]: List of word notes.
+        """
+        all_notes = []
+        url = f"{self.base_url}/studylist/notes"
+        # ?language=en&page=0&page_size=100
+        print(f"Fetching notes for page {page}...")
+        params = {
+            "language": language,
+            "page": page,
+            "page_size": page_size
+        }
     
-    def batch_add_notes(self, word_notes: Dict[str, str], language: str = "en", 
+        try:
+            response = self.session.get(url, params=params)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"Error retrieving word list: {e}")
+            return {"error": str(e)}
+            
+    def get_all_words_with_notes(self, max_pages: Optional[int] = None,
+                                page_size: int = 600, language: str = "en") -> List[str]:
+        """
+        Retrieve all words with notes from LuLu Dictionary.
+        
+        Args:
+            max_pages (int, optional): Maximum number of pages to fetch.
+            page_size (int): Number of words per page.
+            language (str): Language code.
+            
+        Returns:
+            List[str]: List of words with notes.
+        """
+        all_words = []
+        page = 0
+        while True:
+            if max_pages and page > max_pages:
+                break
+
+            print(f"Fetching words with notes for page {page}...")
+            words = self.get_page_word_with_notes(page=page, page_size=page_size, language=language)
+            page_words = [item.get("word") for item in words.get("data", []) if isinstance(item, dict)]
+            if not page_words:
+                print(f"No more words found on page {page}")
+                break
+            all_words.extend(page_words)
+            print(f"Found {len(page_words)} words with notes on page {page}")
+
+            page += 1
+            time.sleep(2)
+
+        return all_words
+
+    def batch_add_notes(self, word_notes: Dict[str, str], language: str = "en",
                        delay: float = 1.0) -> Dict[str, Dict[str, Any]]:
         """
         Add notes to multiple words with rate limiting.
