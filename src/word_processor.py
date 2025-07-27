@@ -137,6 +137,7 @@ class WordNoteProcessor:
                     time.sleep(gemini_delay)
                     
             except Exception as e:
+                time.sleep(2)
                 print(f"  ❌ Error processing '{word}': {e}")
                 failed_uploads.append(word)
         
@@ -437,7 +438,7 @@ def create_processor_from_config() -> WordNoteProcessor:
     
     return WordNoteProcessor(
         luludict_token=Config.LULUDICT_TOKEN,
-        gemini_api_key=Config.get_gemini_api_key()
+        gemini_api_key=Config.GEMINI_API_KEY
     )
 
 

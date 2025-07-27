@@ -21,10 +21,10 @@ class Config:
 
     # LuLu Dictionary API settings
     LULUDICT_BASE_URL = "https://api.frdic.com/api/open/v1"
-    LULUDICT_TOKEN = _keys.get('luludict_token', os.getenv('LULUDICT_TOKEN', ''))
+    LULUDICT_TOKEN = _keys.get('LuLuDict', os.getenv('LULUDICT_TOKEN', ''))
     
     # Gemini API settings
-    GEMINI_API_KEY = _keys.get('gemini_api_key', os.getenv('GEMINI_API_KEY', ''))
+    GEMINI_API_KEY = _keys.get('Gemini', os.getenv('GEMINI_API_KEY', ''))
     GEMINI_MODEL = "gemini-2.5-flash"
     
     # Processing settings
@@ -73,8 +73,8 @@ class Config:
         try:
             with open('keys.json', 'r', encoding='utf-8') as f:
                 cls._keys = json.load(f)
-                cls.GEMINI_API_KEY = cls._keys.get('gemini_api_key', os.getenv('GEMINI_API_KEY', ''))
-                cls.LULUDICT_TOKEN = cls._keys.get('luludict_token', os.getenv('LULUDICT_TOKEN', ''))
+                cls.GEMINI_API_KEY = cls._keys.get('Gemini', os.getenv('GEMINI_API_KEY', ''))
+                cls.LULUDICT_TOKEN = cls._keys.get('LuLuDict', os.getenv('LULUDICT_TOKEN', ''))
                 print("✅ API 密钥已重新加载")
         except FileNotFoundError:
             print("❌ 错误：找不到 keys.json 文件")
