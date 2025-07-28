@@ -213,7 +213,7 @@ class WordNoteProcessor:
                     word["add_time"].startswith("2025-07-26") or
                     word["add_time"].startswith("2025-07-25") or
                     word["add_time"].startswith("2025-07-24")):
-                    words_excluded.append(word)
+                    words_excluded.append(word["word"])
         for word in words:
             if word not in words_excluded:
                 words_without_notes.append(word)
