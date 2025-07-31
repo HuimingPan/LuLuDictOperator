@@ -1,0 +1,437 @@
+{% extends "base.html" %}
+
+{% block title %}Home - LuLu Dictionary Word Note Generator{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="jumbotron bg-primary text-white p-5 rounded mb-4">
+            <h1 class="display-4"><i class="bi bi-book-half"></i> Word Note Generator</h1>
+            <p class="lead">Generate comprehensive word notes using AI providers like Gemini, OpenAI, and Claude.</p>
+            <hr class="my-4">
+            <p>Choose between single word processing or batch processing to create detailed study notes for your vocabulary.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Single Word Generator -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-pencil-square"></i> Single Word Generator
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="single-word-form">
+                    <div class="mb-3">
+                        <label for="single-word" class="form-label">Word to Process</label>
+                        <input type="text" class="form-control" id="single-word" placeholder="Enter a word..." required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="single-provider" class="form-label">AI Provider</label>
+                        <select class="form-select" id="single-provider" required>
+                            {% for key, value in providers.items() %}
+                            <option value="{{ key }}">{{ value.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="single-model" class="form-label">Model</label>
+                        <select class="form-select" id="single-model" required>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="single-style" class="form-label">Note Style</label>
+                        <select class="form-select" id="single-style">
+                            <option value="chinese">Chinese Style (Comprehensive)</option>
+                            <option value="english">English Style (Concise)</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100" id="single-generate-btn">
+                        <i class="bi bi-magic"></i> Generate Note
+                    </button>
+                </form>
+                
+                <div id="single-result" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Batch Word Generator -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-list-ul"></i> Batch Word Generator
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="batch-word-form">
+                    <div class="mb-3">
+                        <label for="batch-words" class="form-label">Words to Process</label>
+                        <textarea class="form-control" id="batch-words" rows="4" 
+                                  placeholder="Enter words separated by commas or new lines...&#10;Example:&#10;serendipity&#10;ephemeral&#10;ubiquitous" required></textarea>
+                        <div class="form-text">Enter words separated by commas or new lines</div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="batch-provider" class="form-label">AI Provider</label>
+                            <select class="form-select" id="batch-provider" required>
+                                {% for key, value in providers.items() %}
+                                <option value="{{ key }}">{{ value.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="batch-model" class="form-label">Model</label>
+                            <select class="form-select" id="batch-model" required>
+                                <!-- Options will be populated by JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="batch-style" class="form-label">Note Style</label>
+                            <select class="form-select" id="batch-style">
+                                <option value="chinese">Chinese Style</option>
+                                <option value="english">English Style</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="batch-delay" class="form-label">Delay (seconds)</label>
+                            <input type="number" class="form-control" id="batch-delay" value="10" min="1" max="60">
+                            <div class="form-text">Delay between API calls</div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100" id="batch-generate-btn">
+                        <i class="bi bi-gear-wide-connected"></i> Start Batch Processing
+                    </button>
+                </form>
+                
+                <div id="batch-result" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- LuLu Dictionary Integration -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-cloud-download"></i> LuLu Dictionary Integration
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Import words directly from your LuLu Dictionary word lists</p>
+                
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="luludict-category" class="form-label">Category ID</label>
+                        <input type="number" class="form-control" id="luludict-category" value="0" min="0">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="luludict-limit" class="form-label">Word Limit</label>
+                        <input type="number" class="form-control" id="luludict-limit" value="20" min="1" max="100">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <br>
+                        <button type="button" class="btn btn-outline-primary w-100" id="load-luludict-words">
+                            <i class="bi bi-download"></i> Load Words
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="luludict-words" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Results -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-clock-history"></i> Recent Results
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="recent-results">
+                    <p class="text-muted">No recent results. Generate some word notes to see them here.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Provider data will be loaded from the backend
+const PROVIDERS = {
+    'gemini': {
+        'name': 'Google Gemini',
+        'models': ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-2.0-flash']
+    },
+    'openai': {
+        'name': 'OpenAI GPT',
+        'models': ['gpt-4', 'gpt-3.5-turbo', 'gpt-4-turbo']
+    },
+    'claude': {
+        'name': 'Anthropic Claude',
+        'models': ['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku']
+    },
+    'deepseek': {
+        'name': 'DeepSeek AI',
+        'models': ['deepseek-chat', 'deepseek-coder', 'deepseek-math']
+    }
+};
+
+// Update model options when provider changes
+function updateModelOptions(providerSelect, modelSelect) {
+    const provider = providerSelect.value;
+    const models = PROVIDERS[provider].models;
+    
+    modelSelect.innerHTML = '';
+    models.forEach(model => {
+        const option = document.createElement('option');
+        option.value = model;
+        option.textContent = model;
+        modelSelect.appendChild(option);
+    });
+}
+
+// Initialize model dropdowns
+document.addEventListener('DOMContentLoaded', function() {
+    const singleProvider = document.getElementById('single-provider');
+    const singleModel = document.getElementById('single-model');
+    const batchProvider = document.getElementById('batch-provider');
+    const batchModel = document.getElementById('batch-model');
+    
+    // Initialize with default selections
+    updateModelOptions(singleProvider, singleModel);
+    updateModelOptions(batchProvider, batchModel);
+    
+    // Add event listeners
+    singleProvider.addEventListener('change', () => updateModelOptions(singleProvider, singleModel));
+    batchProvider.addEventListener('change', () => updateModelOptions(batchProvider, batchModel));
+});
+
+// Single word form submission
+document.getElementById('single-word-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const btn = document.getElementById('single-generate-btn');
+    const originalText = btn.innerHTML;
+    const resultDiv = document.getElementById('single-result');
+    
+    showLoading(btn);
+    resultDiv.innerHTML = '';
+    
+    const formData = {
+        word: document.getElementById('single-word').value,
+        provider: document.getElementById('single-provider').value,
+        model: document.getElementById('single-model').value,
+        style: document.getElementById('single-style').value
+    };
+    
+    try {
+        const response = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Poll for results
+            pollTaskResult(result.task_id, resultDiv, 'single');
+        } else {
+            resultDiv.innerHTML = `<div class="alert alert-danger">${result.message}</div>`;
+        }
+    } catch (error) {
+        resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+    }
+    
+    hideLoading(btn, originalText);
+});
+
+// Batch word form submission
+document.getElementById('batch-word-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const btn = document.getElementById('batch-generate-btn');
+    const originalText = btn.innerHTML;
+    const resultDiv = document.getElementById('batch-result');
+    
+    showLoading(btn);
+    resultDiv.innerHTML = '';
+    
+    const formData = {
+        words: document.getElementById('batch-words').value,
+        provider: document.getElementById('batch-provider').value,
+        model: document.getElementById('batch-model').value,
+        style: document.getElementById('batch-style').value,
+        delay: document.getElementById('batch-delay').value
+    };
+    
+    try {
+        const response = await fetch('/api/batch', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            resultDiv.innerHTML = `
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> 
+                    Started processing ${result.word_count} words. Task ID: ${result.task_id}
+                </div>
+            `;
+            // Poll for results
+            pollTaskResult(result.task_id, resultDiv, 'batch');
+        } else {
+            resultDiv.innerHTML = `<div class="alert alert-danger">${result.message}</div>`;
+        }
+    } catch (error) {
+        resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+    }
+    
+    hideLoading(btn, originalText);
+});
+
+// Poll task result
+function pollTaskResult(taskId, resultDiv, type) {
+    const poll = async () => {
+        try {
+            const response = await fetch(`/api/task/${taskId}`);
+            const data = await response.json();
+            
+            // Update status
+            let statusHtml = `
+                <div class="task-status task-${data.status}">
+                    <strong>Status:</strong> ${data.status}
+                    ${data.status === 'processing' ? ' - ' + (data.result?.current || '') : ''}
+                </div>
+            `;
+            
+            if (data.status === 'completed' && data.result) {
+                if (type === 'single') {
+                    statusHtml += formatSingleResult(data.result);
+                } else {
+                    statusHtml += formatBatchResult(data.result);
+                }
+                resultDiv.innerHTML = statusHtml;
+                return; // Stop polling
+            } else if (data.status === 'failed') {
+                statusHtml += `<div class="alert alert-danger mt-2">Error: ${data.result?.error || 'Unknown error'}</div>`;
+                resultDiv.innerHTML = statusHtml;
+                return; // Stop polling
+            } else {
+                resultDiv.innerHTML = statusHtml;
+                setTimeout(poll, 2000); // Continue polling
+            }
+        } catch (error) {
+            console.error('Polling error:', error);
+        }
+    };
+    
+    poll();
+}
+
+function formatSingleResult(result) {
+    if (result.success) {
+        return `
+            <div class="word-note">
+                <h6><i class="bi bi-check-circle text-success"></i> ${result.word}</h6>
+                <div class="mt-2">${result.note.replace(/\n/g, '<br>')}</div>
+                <small class="text-muted">Generated at: ${new Date(result.timestamp).toLocaleString()}</small>
+            </div>
+        `;
+    } else {
+        return `<div class="alert alert-danger">Error: ${result.error}</div>`;
+    }
+}
+
+function formatBatchResult(result) {
+    if (result.success) {
+        let html = `<div class="mt-3"><h6>Batch Processing Results:</h6>`;
+        
+        Object.entries(result.results).forEach(([word, data]) => {
+            if (data.success) {
+                html += `
+                    <div class="word-note">
+                        <h6><i class="bi bi-check-circle text-success"></i> ${word}</h6>
+                        <div class="mt-2">${data.note.replace(/\n/g, '<br>')}</div>
+                        <small class="text-muted">Generated at: ${new Date(data.timestamp).toLocaleString()}</small>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="alert alert-danger">
+                        <strong>${word}:</strong> ${data.error}
+                    </div>
+                `;
+            }
+        });
+        
+        html += '</div>';
+        return html;
+    } else {
+        return `<div class="alert alert-danger">Batch error: ${result.error}</div>`;
+    }
+}
+
+// Load LuLu Dictionary words
+document.getElementById('load-luludict-words').addEventListener('click', async function() {
+    const btn = this;
+    const originalText = btn.innerHTML;
+    const resultDiv = document.getElementById('luludict-words');
+    
+    showLoading(btn);
+    
+    const categoryId = document.getElementById('luludict-category').value;
+    const limit = document.getElementById('luludict-limit').value;
+    
+    try {
+        const response = await fetch(`/api/luludict/words?category_id=${categoryId}&page_size=${limit}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            const words = data.words.map(w => w.word).join('\n');
+            document.getElementById('batch-words').value = words;
+            
+            resultDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle"></i> 
+                    Loaded ${data.words.length} words into batch processor
+                </div>
+            `;
+        } else {
+            resultDiv.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+        }
+    } catch (error) {
+        resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+    }
+    
+    hideLoading(btn, originalText);
+});
+</script>
+{% endblock %}

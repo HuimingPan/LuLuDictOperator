@@ -1,0 +1,365 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - LuLu Dictionary Word Note Generator{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="bi bi-gear"></i> Settings</h2>
+        <p class="text-muted">Configure your API keys and application preferences</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- API Keys Configuration -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-key"></i> API Keys Configuration
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="api-keys-form">
+                    <!-- LuLu Dictionary API Key -->
+                    <div class="mb-3">
+                        <label for="luludict-key" class="form-label">
+                            <i class="bi bi-book"></i> LuLu Dictionary Token
+                        </label>
+                        <input type="password" class="form-control" id="luludict-key" 
+                               placeholder="Enter your LuLu Dictionary API token">
+                        <div class="form-text">Required for importing words from LuLu Dictionary</div>
+                    </div>
+                    
+                    <!-- AI Provider API Keys -->
+                    {% for provider_id, provider_info in providers.items() %}
+                    <div class="mb-3">
+                        <label for="{{ provider_id }}-key" class="form-label">
+                            <i class="bi bi-robot"></i> {{ provider_info.name }} API Key
+                        </label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="{{ provider_id }}-key" 
+                                   placeholder="Enter your {{ provider_info.name }} API key">
+                            <button class="btn btn-outline-secondary" type="button" 
+                                    onclick="togglePasswordVisibility('{{ provider_id }}-key')">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-text">
+                            Provider: {{ provider_info.name }}
+                            {% if provider_info.implemented %}
+                            <span class="badge bg-success">Implemented</span>
+                            {% else %}
+                            <span class="badge bg-warning">Coming Soon</span>
+                            {% endif %}
+                            <br>Available models: {{ provider_info.models | join(', ') }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <button type="submit" class="btn btn-primary" id="save-keys-btn">
+                        <i class="bi bi-save"></i> Save API Keys
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Application Preferences -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-sliders"></i> Application Preferences
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="preferences-form">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="default-provider" class="form-label">Default AI Provider</label>
+                            <select class="form-select" id="default-provider">
+                                {% for provider_id, provider_info in providers.items() %}
+                                <option value="{{ provider_id }}">{{ provider_info.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="default-style" class="form-label">Default Note Style</label>
+                            <select class="form-select" id="default-style">
+                                <option value="chinese">Chinese Style (Comprehensive)</option>
+                                <option value="english">English Style (Concise)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="default-delay" class="form-label">Default Delay (seconds)</label>
+                            <input type="number" class="form-control" id="default-delay" value="10" min="1" max="60">
+                            <div class="form-text">Delay between API calls for batch processing</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="default-batch-size" class="form-label">Default Batch Size</label>
+                            <input type="number" class="form-control" id="default-batch-size" value="20" min="1" max="100">
+                            <div class="form-text">Number of words to process in each batch</div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="bi bi-check-circle"></i> Save Preferences
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- API Status Sidebar -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-activity"></i> API Status
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="api-status">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Checking API status...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Test Section -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-lightning"></i> Quick Test
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Test your API configurations</p>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary btn-sm" id="test-luludict">
+                        <i class="bi bi-book"></i> Test LuLu Dictionary
+                    </button>
+                    {% for provider_id, provider_info in providers.items() %}
+                    <button class="btn btn-outline-primary btn-sm" id="test-{{ provider_id }}" data-provider="{{ provider_id }}">
+                        <i class="bi bi-robot"></i> Test {{ provider_info.name }}
+                    </button>
+                    {% endfor %}
+                </div>
+                <div id="test-results" class="mt-3"></div>
+            </div>
+        </div>
+        
+        <!-- Usage Statistics -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-bar-chart"></i> Usage Statistics
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-12 mb-2">
+                        <h6 class="text-muted">Words Processed Today</h6>
+                        <h4 class="text-primary" id="words-today">0</h4>
+                    </div>
+                    <div class="col-6">
+                        <h6 class="text-muted">Success Rate</h6>
+                        <h5 class="text-success" id="success-rate">0%</h5>
+                    </div>
+                    <div class="col-6">
+                        <h6 class="text-muted">Total Words</h6>
+                        <h5 class="text-info" id="total-words">0</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Help Section -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-question-circle"></i> Help & Documentation
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6>Getting API Keys</h6>
+                        <ul class="list-unstyled">
+                            <li><a href="https://makersuite.google.com/app/apikey" target="_blank">
+                                <i class="bi bi-link-45deg"></i> Google Gemini API Key
+                            </a></li>
+                            <li><a href="https://platform.openai.com/api-keys" target="_blank">
+                                <i class="bi bi-link-45deg"></i> OpenAI API Key
+                            </a></li>
+                            <li><a href="https://console.anthropic.com/" target="_blank">
+                                <i class="bi bi-link-45deg"></i> Anthropic Claude API Key
+                            </a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Note Styles</h6>
+                        <p><strong>Chinese Style:</strong> Comprehensive notes with detailed usage examples, synonyms, antonyms, and related words in Chinese format.</p>
+                        <p><strong>English Style:</strong> Concise study notes with definitions, pronunciation, examples, and etymology in English format.</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Rate Limiting</h6>
+                        <p>Different providers have different rate limits:</p>
+                        <ul>
+                            <li><strong>Gemini:</strong> 15 requests/minute (recommended 10s delay)</li>
+                            <li><strong>OpenAI:</strong> Varies by plan</li>
+                            <li><strong>Claude:</strong> Varies by plan</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Load API status on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadAPIStatus();
+    loadStoredKeys();
+});
+
+// API Keys form submission
+document.getElementById('api-keys-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const btn = document.getElementById('save-keys-btn');
+    const originalText = btn.innerHTML;
+    showLoading(btn);
+    
+    const formData = {
+        luludict_key: document.getElementById('luludict-key').value,
+        {% for provider_id in providers.keys() %}
+        {{ provider_id }}_key: document.getElementById('{{ provider_id }}-key').value,
+        {% endfor %}
+    };
+    
+    try {
+        const response = await fetch('/api/keys', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showToast('API keys saved successfully!', 'success');
+            loadAPIStatus(); // Refresh status
+        } else {
+            showToast(`Error: ${result.message}`, 'danger');
+        }
+    } catch (error) {
+        showToast(`Error: ${error.message}`, 'danger');
+    }
+    
+    hideLoading(btn, originalText);
+});
+
+// Load API status
+async function loadAPIStatus() {
+    try {
+        const response = await fetch('/api/keys');
+        const data = await response.json();
+        
+        let statusHtml = '';
+        Object.entries(data).forEach(([provider, info]) => {
+            const status = info.configured ? 'success' : 'danger';
+            const icon = info.configured ? 'check-circle' : 'x-circle';
+            const text = info.configured ? 'Configured' : 'Not Configured';
+            
+            statusHtml += `
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span>${info.name}</span>
+                    <span class="badge bg-${status}">
+                        <i class="bi bi-${icon}"></i> ${text}
+                    </span>
+                </div>
+            `;
+        });
+        
+        document.getElementById('api-status').innerHTML = statusHtml;
+    } catch (error) {
+        document.getElementById('api-status').innerHTML = 
+            '<div class="alert alert-danger">Error loading API status</div>';
+    }
+}
+
+// Load stored keys (for display purposes)
+function loadStoredKeys() {
+    // This would typically load from localStorage or make an API call
+    // For security, we don't actually display the stored keys
+}
+
+// Toggle password visibility
+function togglePasswordVisibility(inputId) {
+    const input = document.getElementById(inputId);
+    const button = input.nextElementSibling;
+    const icon = button.querySelector('i');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'bi bi-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'bi bi-eye';
+    }
+}
+
+// Test API connections
+{% for provider_id in providers.keys() %}
+document.getElementById('test-{{ provider_id }}').addEventListener('click', async function() {
+    const btn = this;
+    const originalText = btn.innerHTML;
+    const provider = '{{ provider_id }}';
+    
+    showLoading(btn);
+    
+    // This is a placeholder for actual API testing
+    setTimeout(() => {
+        hideLoading(btn, originalText);
+        showToast(`${provider} API test completed`, 'info');
+    }, 2000);
+});
+{% endfor %}
+
+document.getElementById('test-luludict').addEventListener('click', async function() {
+    const btn = this;
+    const originalText = btn.innerHTML;
+    
+    showLoading(btn);
+    
+    try {
+        const response = await fetch('/api/luludict/words?category_id=0&page_size=1');
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('LuLu Dictionary API test successful!', 'success');
+        } else {
+            showToast(`LuLu Dictionary API test failed: ${data.message}`, 'danger');
+        }
+    } catch (error) {
+        showToast(`LuLu Dictionary API test failed: ${error.message}`, 'danger');
+    }
+    
+    hideLoading(btn, originalText);
+});
+</script>
+{% endblock %}

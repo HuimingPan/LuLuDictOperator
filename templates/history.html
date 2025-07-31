@@ -1,0 +1,478 @@
+{% extends "base.html" %}
+
+{% block title %}History - LuLu Dictionary Word Note Generator{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="bi bi-clock-history"></i> Processing History</h2>
+        <p class="text-muted">View and manage your word processing history</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <!-- Filters -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="filter-provider" class="form-label">Filter by Provider</label>
+                        <select class="form-select" id="filter-provider">
+                            <option value="">All Providers</option>
+                            <option value="gemini">Google Gemini</option>
+                            <option value="openai">OpenAI GPT</option>
+                            <option value="claude">Anthropic Claude</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="filter-status" class="form-label">Filter by Status</label>
+                        <select class="form-select" id="filter-status">
+                            <option value="">All Status</option>
+                            <option value="completed">Completed</option>
+                            <option value="failed">Failed</option>
+                            <option value="processing">Processing</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="filter-date" class="form-label">Filter by Date</label>
+                        <input type="date" class="form-control" id="filter-date">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">&nbsp;</label>
+                        <div class="d-grid">
+                            <button class="btn btn-outline-primary" id="apply-filters">
+                                <i class="bi bi-funnel"></i> Apply Filters
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- History Table -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-table"></i> Processing History
+                </h5>
+                <div>
+                    <button class="btn btn-outline-danger btn-sm" id="clear-history">
+                        <i class="bi bi-trash"></i> Clear History
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm" id="export-history">
+                        <i class="bi bi-download"></i> Export
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="history-table">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Date/Time</th>
+                                <th>Word(s)</th>
+                                <th>Provider</th>
+                                <th>Model</th>
+                                <th>Style</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-tbody">
+                            <tr>
+                                <td colspan="7" class="text-center text-muted">
+                                    <div class="py-4">
+                                        <i class="bi bi-hourglass-split"></i>
+                                        <p class="mt-2">Loading history...</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <nav aria-label="History pagination" class="mt-3">
+                    <ul class="pagination pagination-sm justify-content-center" id="history-pagination">
+                        <!-- Pagination will be populated by JavaScript -->
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Word Detail Modal -->
+<div class="modal fade" id="wordDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Word Note Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modal-word-content">
+                <!-- Content will be loaded dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" id="copy-note">
+                    <i class="bi bi-clipboard"></i> Copy Note
+                </button>
+                <button type="button" class="btn btn-outline-secondary" id="download-note">
+                    <i class="bi bi-download"></i> Download
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title text-primary" id="total-processed">0</h5>
+                <p class="card-text">Total Processed</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title text-success" id="successful-count">0</h5>
+                <p class="card-text">Successful</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title text-danger" id="failed-count">0</h5>
+                <p class="card-text">Failed</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title text-info" id="success-rate-display">0%</h5>
+                <p class="card-text">Success Rate</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Sample history data (in a real app, this would come from the backend)
+let historyData = [
+    {
+        id: 1,
+        timestamp: '2025-01-20T10:30:00',
+        words: ['serendipity'],
+        provider: 'gemini',
+        model: 'gemini-2.5-flash',
+        style: 'chinese',
+        status: 'completed',
+        note: 'Sample note for serendipity...'
+    },
+    {
+        id: 2,
+        timestamp: '2025-01-20T11:15:00',
+        words: ['ephemeral', 'ubiquitous', 'paradigm'],
+        provider: 'gemini',
+        model: 'gemini-2.5-flash',
+        style: 'chinese',
+        status: 'completed',
+        note: 'Batch processing results...'
+    },
+    {
+        id: 3,
+        timestamp: '2025-01-20T12:00:00',
+        words: ['example'],
+        provider: 'openai',
+        model: 'gpt-4',
+        style: 'english',
+        status: 'failed',
+        error: 'API key not configured'
+    }
+];
+
+let currentPage = 1;
+const itemsPerPage = 10;
+let filteredData = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadHistory();
+    updateStatistics();
+});
+
+function loadHistory() {
+    filteredData = [...historyData];
+    applyFilters();
+    renderHistory();
+    renderPagination();
+}
+
+function applyFilters() {
+    const providerFilter = document.getElementById('filter-provider').value;
+    const statusFilter = document.getElementById('filter-status').value;
+    const dateFilter = document.getElementById('filter-date').value;
+    
+    filteredData = historyData.filter(item => {
+        let matches = true;
+        
+        if (providerFilter && item.provider !== providerFilter) {
+            matches = false;
+        }
+        
+        if (statusFilter && item.status !== statusFilter) {
+            matches = false;
+        }
+        
+        if (dateFilter) {
+            const itemDate = new Date(item.timestamp).toISOString().split('T')[0];
+            if (itemDate !== dateFilter) {
+                matches = false;
+            }
+        }
+        
+        return matches;
+    });
+    
+    currentPage = 1;
+    renderHistory();
+    renderPagination();
+}
+
+function renderHistory() {
+    const tbody = document.getElementById('history-tbody');
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const pageData = filteredData.slice(startIndex, endIndex);
+    
+    if (pageData.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center text-muted">
+                    <div class="py-4">
+                        <i class="bi bi-inbox"></i>
+                        <p class="mt-2">No history found</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = pageData.map(item => {
+        const date = new Date(item.timestamp).toLocaleString();
+        const words = Array.isArray(item.words) ? item.words.join(', ') : item.words;
+        const statusBadge = getStatusBadge(item.status);
+        const providerBadge = getProviderBadge(item.provider);
+        
+        return `
+            <tr>
+                <td>${date}</td>
+                <td>
+                    ${words.length > 30 ? words.substring(0, 30) + '...' : words}
+                    ${Array.isArray(item.words) && item.words.length > 1 ? 
+                        `<span class="badge bg-secondary ms-1">${item.words.length} words</span>` : ''}
+                </td>
+                <td>${providerBadge}</td>
+                <td><code class="small">${item.model}</code></td>
+                <td><span class="badge bg-info">${item.style}</span></td>
+                <td>${statusBadge}</td>
+                <td>
+                    <button class="btn btn-outline-primary btn-sm" onclick="viewDetails(${item.id})">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm" onclick="deleteItem(${item.id})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function getStatusBadge(status) {
+    const badges = {
+        'completed': '<span class="badge bg-success"><i class="bi bi-check-circle"></i> Completed</span>',
+        'failed': '<span class="badge bg-danger"><i class="bi bi-x-circle"></i> Failed</span>',
+        'processing': '<span class="badge bg-warning"><i class="bi bi-hourglass-split"></i> Processing</span>',
+        'queued': '<span class="badge bg-info"><i class="bi bi-clock"></i> Queued</span>'
+    };
+    return badges[status] || `<span class="badge bg-secondary">${status}</span>`;
+}
+
+function getProviderBadge(provider) {
+    const badges = {
+        'gemini': '<span class="badge bg-primary">Gemini</span>',
+        'openai': '<span class="badge bg-success">OpenAI</span>',
+        'claude': '<span class="badge bg-warning">Claude</span>'
+    };
+    return badges[provider] || `<span class="badge bg-secondary">${provider}</span>`;
+}
+
+function renderPagination() {
+    const pagination = document.getElementById('history-pagination');
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    
+    if (totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+    }
+    
+    let paginationHTML = '';
+    
+    // Previous button
+    paginationHTML += `
+        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Previous</a>
+        </li>
+    `;
+    
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+            paginationHTML += `
+                <li class="page-item ${i === currentPage ? 'active' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                </li>
+            `;
+        } else if (i === currentPage - 3 || i === currentPage + 3) {
+            paginationHTML += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+        }
+    }
+    
+    // Next button
+    paginationHTML += `
+        <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Next</a>
+        </li>
+    `;
+    
+    pagination.innerHTML = paginationHTML;
+}
+
+function changePage(page) {
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    if (page >= 1 && page <= totalPages) {
+        currentPage = page;
+        renderHistory();
+        renderPagination();
+    }
+}
+
+function viewDetails(itemId) {
+    const item = historyData.find(h => h.id === itemId);
+    if (!item) return;
+    
+    const modal = new bootstrap.Modal(document.getElementById('wordDetailModal'));
+    const modalContent = document.getElementById('modal-word-content');
+    
+    const words = Array.isArray(item.words) ? item.words.join(', ') : item.words;
+    
+    modalContent.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Processing Details</h6>
+                <table class="table table-sm">
+                    <tr><td><strong>Word(s):</strong></td><td>${words}</td></tr>
+                    <tr><td><strong>Provider:</strong></td><td>${item.provider}</td></tr>
+                    <tr><td><strong>Model:</strong></td><td>${item.model}</td></tr>
+                    <tr><td><strong>Style:</strong></td><td>${item.style}</td></tr>
+                    <tr><td><strong>Status:</strong></td><td>${getStatusBadge(item.status)}</td></tr>
+                    <tr><td><strong>Timestamp:</strong></td><td>${new Date(item.timestamp).toLocaleString()}</td></tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h6>Generated Note</h6>
+                <div class="word-note" style="max-height: 300px; overflow-y: auto;">
+                    ${item.status === 'completed' ? 
+                        item.note.replace(/\n/g, '<br>') : 
+                        `<div class="text-danger">Error: ${item.error || 'Processing failed'}</div>`}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    modal.show();
+}
+
+function deleteItem(itemId) {
+    if (confirm('Are you sure you want to delete this history item?')) {
+        historyData = historyData.filter(h => h.id !== itemId);
+        loadHistory();
+        updateStatistics();
+        showToast('History item deleted', 'success');
+    }
+}
+
+function updateStatistics() {
+    const total = historyData.length;
+    const successful = historyData.filter(h => h.status === 'completed').length;
+    const failed = historyData.filter(h => h.status === 'failed').length;
+    const successRate = total > 0 ? Math.round((successful / total) * 100) : 0;
+    
+    document.getElementById('total-processed').textContent = total;
+    document.getElementById('successful-count').textContent = successful;
+    document.getElementById('failed-count').textContent = failed;
+    document.getElementById('success-rate-display').textContent = successRate + '%';
+}
+
+// Event listeners
+document.getElementById('apply-filters').addEventListener('click', applyFilters);
+
+document.getElementById('clear-history').addEventListener('click', function() {
+    if (confirm('Are you sure you want to clear all history? This action cannot be undone.')) {
+        historyData = [];
+        loadHistory();
+        updateStatistics();
+        showToast('History cleared', 'success');
+    }
+});
+
+document.getElementById('export-history').addEventListener('click', function() {
+    const dataStr = JSON.stringify(filteredData, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(dataBlob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `word_history_${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    
+    URL.revokeObjectURL(url);
+    showToast('History exported', 'success');
+});
+
+document.getElementById('copy-note').addEventListener('click', function() {
+    const noteContent = document.querySelector('#modal-word-content .word-note');
+    if (noteContent) {
+        navigator.clipboard.writeText(noteContent.textContent).then(() => {
+            showToast('Note copied to clipboard', 'success');
+        });
+    }
+});
+
+document.getElementById('download-note').addEventListener('click', function() {
+    const noteContent = document.querySelector('#modal-word-content .word-note');
+    if (noteContent) {
+        const blob = new Blob([noteContent.textContent], {type: 'text/plain'});
+        const url = URL.createObjectURL(blob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'word_note.txt';
+        link.click();
+        
+        URL.revokeObjectURL(url);
+        showToast('Note downloaded', 'success');
+    }
+});
+</script>
+{% endblock %}

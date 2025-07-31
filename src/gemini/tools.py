@@ -100,7 +100,7 @@ class GeminiWordNoteGenerator:
             raise ValueError("Gemini API key is required. Set GEMINI_API_KEY environment variable or pass api_key parameter.")
         
         genai.configure(api_key=self.api_key)
-        self.model = genai.GenerativeModel('gemini-2.5-flash')
+        self.model = genai.GenerativeModel('gemini-2.0-flash')
     
     def generate_word_note(self, word: str, language: str = "en", style: str = "Chinese") -> str:
         """
