@@ -72,15 +72,15 @@ cp keys.json.example keys.json
 2. 编辑 `keys.json` 文件，填入您的 API 密钥：
 ```json
 {
-    "gemini_api_key": "your_gemini_api_key_here",
-    "luludict_token": "your_luludict_token_here"
+    "gemini": "your_gemini_api_key_here",
+    "luludict": "your_luludict_token_here"
 }
 ```
 
 3. 获取 Gemini API 密钥：
-   - 访问 [Google AI Studio](https://makersuite.google.com/app/apikey)
+   - 访问 [Google AI Studio](https://aistudio.google.com/app/apikey)
    - 创建新的 API 密钥
-   - 将密钥填入 `keys.json` 的 `gemini_api_key` 字段
+   - 将密钥填入 `keys.json` 的 `gemini` 字段
 
 **注意**: `keys.json` 文件已被添加到 `.gitignore` 中，不会被提交到版本控制系统。
 
@@ -89,7 +89,7 @@ cp keys.json.example keys.json
 ### 选项 1：快速开始 - 批处理模式（推荐）
 
 ```bash
-python main.py
+python app.py
 ```
 
 **功能说明：**
@@ -140,51 +140,6 @@ results = processor.process_specific_words(specific_words)
 
 # 保存结果
 save_results(results)
-```
-
-### 选项 4：运行示例
-
-```bash
-python examples.py
-```
-
-演示各种使用模式和处理方式。
-
-## ⚙️ 配置
-
-项目使用 `config.py` 中的集中 `Config` 类进行所有设置：
-
-### API 设置
-```python
-# 自动从 keys.json 或环境变量加载
-LULUDICT_TOKEN = "从 keys.json 加载"
-GEMINI_API_KEY = "从 keys.json 或环境变量加载"  
-GEMINI_MODEL = "gemini-2.5-flash"  # 最新模型
-```
-
-### 处理设置
-```python
-# 速率限制（推荐值）
-REQUEST_DELAY = 2.0   # LuLu 词典 API 延迟
-GEMINI_DELAY = 15.0   # Gemini API 延迟（保守设置）
-BATCH_SIZE = 10       # 每批处理的单词数
-
-# 处理默认值
-DEFAULT_LANGUAGE = "en"
-DEFAULT_CATEGORY_ID = 0  # 所有分类
-```
-
-### 方法参数
-```python
-processor.process_word_notes(
-    language="en",                    # 语言代码
-    category_id=0,                   # LuLu 分类（0 = 全部）
-    max_words=None,                  # 单词限制（None = 无限制）
-    delay_between_requests=2.0,      # LuLu API 延迟
-    gemini_delay=15.0,              # Gemini API 延迟  
-    skip_existing_notes=True,        # 跳过已有笔记的单词
-    processing_mode="batch"          # "batch" 或 "individual"
-)
 ```
 
 ## 📊 处理模式

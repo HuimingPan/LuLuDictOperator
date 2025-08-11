@@ -14,12 +14,6 @@ from src.gemini.gemini import GeminiWordNoteGenerator
 
 class TestGeminiAPI(unittest.TestCase):
     
-    def setUp(self):
-        """Set up test fixtures before each test method."""
-        # Check if API key is available
-        if not os.getenv('GEMINI_API_KEY'):
-            self.skipTest("GEMINI_API_KEY environment variable not set")
-    
     def test_gemini_connection(self):
         """Test connection to Gemini API."""
         print("Testing Gemini API connection...")
