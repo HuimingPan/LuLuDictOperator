@@ -26,7 +26,10 @@ class Config:
     # Gemini API settings
     GEMINI_API_KEY = _keys.get('gemini', os.getenv('GEMINI_API_KEY', ''))
     GEMINI_MODEL = "gemini-2.5-flash"
-    
+
+    DEEPSEEK_API_KEY = _keys.get('deepseek', os.getenv('DEEPSEEK_API_KEY', ''))
+    DEEPSEEK_MODEL = "deepseek-chat"
+
     # Processing settings
     DEFAULT_LANGUAGE = "en"
     DEFAULT_CATEGORY_ID = 0
@@ -40,6 +43,85 @@ class Config:
     # File settings
     RESULTS_FILE = "word_notes_results.json"
     LOGS_FILE = "word_processor.log"
+
+    SYSTEM_INSTRUCTION = """
+    给出单词的联想词和常用的搭配。其他要求如下：
+    - 所有联想词单词都是常见词，限定在 CET-4/CET-6 词汇范围内。
+    - 音标遵循美式发音;
+    - 内容包括常见用法及搭配，形近词/音近词，近义词，反义词，同根词，其他联想词
+    - 考虑单词全部常用的词义、词性
+    - 近义词中，需要说明包括目标词在内的词义辨析 
+    - 其他联想词是与目标单词具有强关联性的单词，是包括除了形近词/音近词，近义词，反义词之后，其他容易共同出现在文本中的词汇。这一类单词不要包括过于简单的单词。
+    - 返回的内容中，不要使用加粗或者斜体，即不要使用 * 符号。
+    - 返回一个 text 代码块，便于复制
+
+    如对于单词 figure，返回
+
+    ```Plaintext
+    #用法
+    1. N. 数字，数目。代表数量、顺序等的符号。
+    e.g. in figures (用数字表示)
+    e.g. Write the amount in words and figures.
+    e.g. sales figures (销售数据)
+    e.g. budget figures (预算数据)
+    e.g. unemployment figures (失业数据)
+    2. N. 人物。指一个特定的人，尤指重要或有名望的人。
+    e.g. She's a leading figure in the fashion world.
+    e.g. high-profile/prominent/public/historical/political figure
+    e.g. a stick figure (火柴人, 简笔画小人)
+    3. N. 身材，体形。指人的身体的形状或轮廓。
+    e.g. a slim/slender/full figure (苗条的/丰满的身材)
+    e.g. She has a slender figure.
+    4. N. 图形，图表。用于说明信息或数据的视觉表示。
+    e.g. Please refer to Figure 3 for more details.
+    5. VT. 认为，估计。在思考后得出结论或判断。
+    e.g. figure in (考虑在内, 参与)
+    e.g. figure on (指望, 预计)
+    e.g. I figured he'd be late.
+    6. VT. 计算。通过数学运算确定数量。
+    e.g. figure out (弄懂, 算出)
+    e.g. Can you figure out the total cost?
+    7. VI. 出现，扮演角色。在某事中起到作用或参与。
+    e.g. figure prominently (显著地出现)
+    e.g. He figures prominently in the story.
+
+    #联想
+    1.形近词/音近词:
+    * finger /ˈfɪŋɡər/ (n. 手指；v. 用手指触摸)
+    * disfigure /dɪsˈfɪɡjər/ (v. 损毁...的外形)
+
+    2.近义词:
+    * figure (n. 数字, 人物, 身材, 图形；v. 认为, 计算, 出现): 含义广泛，作为名词可以指代数字、人物、图形或体形；作为动词可以表示思考、计算或在某事中扮演角色。
+    * number /ˈnʌmbər/ (n. 数字, 数量): 主要指用来计数或表示数量的符号或概念。
+    * digit /ˈdɪdʒɪt/ (n. 数字, 位): 特指阿拉伯数字0到9中的任一个。
+    * character /ˈkærəktər/ (n. 人物, 角色, 性格): 指小说、戏剧中的人物或某个人的独特品质。
+    * shape /ʃeɪp/ (n. 形状, 轮廓): 指物体外部的形态或轮廓。
+    * illustration /ˌɪləˈstreɪʃən/ (n. 插图, 图解): 指用于解释或装饰文本的图片。
+    * estimate /ˈɛstɪmɪt/ (v. 估计, 估算；n. 估计, 估价): 强调对数量、价值等的近似判断。
+    * calculate /ˈkælkjəˌleɪt/ (v. 计算, 估计): 强调通过数学方法精确地确定数量。
+    * role /roʊl/ (n. 角色, 作用): 指在某事中所扮演的功能或职责。
+
+    3. 反义词:
+    * ignore /ɪɡˈnɔr/ (v. 忽视) (与 figure '认为' 相对)
+    * unknown /ˌʌnˈnoʊn/ (n. 未知数) (与 figure '数字' 相对)
+
+    4. 同根词/派生词
+    * figuration /ˌfɪɡjəˈreɪʃən/ (n. 形状, 图案)
+    * figurative /ˈfɪɡjərətɪv/ (adj. 比喻的, 象征的)
+    * figuring /ˈfɪɡjərɪŋ/ (n. 计算, 估计)
+
+    5. 其他联想词:
+    * data /ˈdeɪtə/ (n. 数据)
+    * chart /tʃɑrt/ (n. 图表)
+    * diagram /ˈdaɪəˌɡræm/ (n. 图解)
+    * graph /ɡræf/ (n. 图形)
+    * model /ˈmɑdl/ (n. 模型)
+    * concept /ˈkɑnsɛpt/ (n. 概念)
+    * idea /aɪˈdiə/ (n. 想法)
+    * problem /ˈprɑbləm/ (n. 问题)
+    * solution /səˈluʃən/ (n. 解决方案)
+    ```
+    """
     
     @classmethod
     def validate(cls) -> bool:
