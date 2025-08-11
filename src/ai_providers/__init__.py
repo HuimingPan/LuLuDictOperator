@@ -42,7 +42,7 @@ class GeminiProvider(AIProvider):
     def _initialize(self):
         """Initialize the Gemini generator"""
         try:
-            from src.gemini.tools import GeminiWordNoteGenerator
+            from src.gemini.gemini import GeminiWordNoteGenerator
             self._generator = GeminiWordNoteGenerator(self.api_key)
         except ImportError:
             raise ImportError("Gemini dependencies not installed")

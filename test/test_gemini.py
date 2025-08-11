@@ -9,7 +9,7 @@ import unittest
 # Add src to path for imports
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src'))
 
-from src.gemini.tools import GeminiWordNoteGenerator
+from src.gemini.gemini import GeminiWordNoteGenerator
 
 
 class TestGeminiAPI(unittest.TestCase):

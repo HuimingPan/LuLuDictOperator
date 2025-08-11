@@ -2,6 +2,7 @@ import os
 import google.generativeai as genai
 from typing import Optional
 import time
+from config import Config
 
 # System instruction for Chinese-style word analysis
 CHINESE_INSTRUCTION = """
@@ -79,7 +80,7 @@ Do not use bold or italic formatting.
 class GeminiWordNoteGenerator:
     """A class to generate word notes using Google's Gemini AI."""
     
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = Config.GEMINI_API_KEY, gemini_model: str = Config.GEMINI_MODEL):
         """
         Initialize the Gemini client.
         
@@ -87,12 +88,12 @@ class GeminiWordNoteGenerator:
             api_key (str, optional): Gemini API key. If not provided, 
                                    will try to get from GEMINI_API_KEY environment variable.
         """
-        self.api_key = api_key or os.getenv('GEMINI_API_KEY')
+        self.api_key = api_key
         if not self.api_key:
             raise ValueError("Gemini API key is required. Set GEMINI_API_KEY environment variable or pass api_key parameter.")
         
         genai.configure(api_key=self.api_key)
-        self.model = genai.GenerativeModel('gemini-2.0-flash')
+        self.model = genai.GenerativeModel(gemini_model)
     
     def generate_word_note(self, word: str, language: str = "en", style: str = "Chinese") -> str:
         """

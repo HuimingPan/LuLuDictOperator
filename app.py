@@ -12,7 +12,7 @@ import threading
 import queue
 
 from src.word_processor import WordNoteProcessor, create_processor_from_config
-from src.gemini.tools import GeminiWordNoteGenerator
+from src.gemini.gemini import GeminiWordNoteGenerator
 from src.luludict.client import LuLuDictClient
 from src.ai_providers import AIProviderFactory, BatchProcessor
 from config import Config

@@ -13,7 +13,7 @@ import time
 from typing import Optional, Dict, List, Union
 
 from src.luludict.client import LuLuDictClient
-from src.gemini.tools import GeminiWordNoteGenerator
+from src.gemini.gemini import GeminiWordNoteGenerator
 from config import Config
 
 
