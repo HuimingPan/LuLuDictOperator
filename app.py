@@ -67,6 +67,7 @@ def background_worker():
                 break
             
             task_id = task['id']
+            print(f"Processing task {task_id}: {task.get('type', 'unknown')}")
             task_status[task_id] = 'processing'
             
             try:
@@ -80,8 +81,10 @@ def background_worker():
                 
                 task_results[task_id] = result
                 task_status[task_id] = 'completed'
+                print(f"Task {task_id} completed successfully")
                 
             except Exception as e:
+                print(f"Task {task_id} failed: {str(e)}")
                 task_results[task_id] = {'error': str(e)}
                 task_status[task_id] = 'failed'
             
@@ -312,6 +315,8 @@ def get_task_status(task_id):
     status = task_status.get(task_id, 'not_found')
     result = task_results.get(task_id)
     
+    print(f"Task status check - ID: {task_id}, Status: {status}, Has result: {result is not None}")
+    
     return jsonify({
         'task_id': task_id,
         'status': status,
@@ -351,6 +356,43 @@ def get_luludict_words():
         
         return jsonify({'success': True, 'words': words})
         
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+
+@app.route('/api/test/provider/<provider>')
+def test_provider_direct(provider):
+    """Direct test endpoint for AI providers"""
+    try:
+        # Get API key
+        keys = load_api_keys()
+        api_key = keys.get(provider) or os.getenv(f"{provider.upper()}_API_KEY")
+        
+        if not api_key:
+            return jsonify({'success': False, 'message': f'API key for {provider} not configured'})
+        
+        # Test word
+        test_word = "test"
+        
+        # Create AI provider
+        try:
+            ai_provider = AIProviderFactory.create_provider(provider, api_key)
+            
+            # Generate note directly (no background task)
+            note = ai_provider.generate_word_note(test_word, "english")
+            
+            return jsonify({
+                'success': True, 
+                'provider': provider,
+                'word': test_word,
+                'note': note,
+                'message': f'{provider} provider working correctly'
+            })
+            
+        except NotImplementedError:
+            return jsonify({'success': False, 'message': f'Provider {provider} not yet implemented'})
+        except Exception as e:
+            return jsonify({'success': False, 'message': f'Provider test failed: {str(e)}'})
+            
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
 

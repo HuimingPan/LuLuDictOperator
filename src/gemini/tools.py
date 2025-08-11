@@ -15,56 +15,48 @@ CHINESE_INSTRUCTION = """
 - 返回的内容中，不要使用加粗或者斜体，即不要使用 * 符号。
 - 不要出现连续的两个空行。
 
-如对于单词 figure，返回：
+如对于单词 autonomous，返回：
 #用法
-1. N. 数字，数目。代表数量、顺序等的符号。
-e.g. in figures (用数字表示)
-e.g. sales figures (销售数据)
-e.g. budget figures (预算数据)
-e.g. unemployment figures (失业数据)
-e.g. Write the amount in words and figures.
-2. N. 人物。指一个特定的人，尤指重要或有名望的人。
-e.g. high-profile/prominent/public/historical/political figure
-e.g. She's a leading figure in the fashion world.
-e.g. a stick figure (火柴人, 简笔画小人)
-3. N. 身材，体形。指人的身体的形状或轮廓。
-e.g. a slim/slender/full figure (苗条的/丰满的身材)
-e.g. She has a slender figure.
-4. N. 图形，图表。用于说明信息或数据的视觉表示。
-e.g. Please refer to Figure 3 for more details.
-5. VT. 认为，估计。在思考后得出结论或判断。
-e.g. figure in (考虑在内, 参与)
-e.g. figure on (指望, 预计)
-e.g. I figured he'd be late.
-6. VT. 计算。通过数学运算确定数量。
-e.g. figure out (弄懂, 算出)
-e.g. Can you figure out the total cost?
-7. VI. 出现，扮演角色。在某事中起到作用或参与。
-e.g. figure prominently (显著地出现)
-e.g. He figures prominently in the story.
+1. adj. 自治的，独立的。指拥有自我管理或决策的权力，不受外部控制。
+e.g. an autonomous region (自治区)
+e.g. autonomous local governments
+e.g. The university is an autonomous body within the national education system.
+2. adj. 自动的，无人干预的。指机器、系统等无需人工操作或干预即可自行运行或完成任务。
+e.g. autonomous vehicles/cars (自动驾驶汽车)
+e.g. autonomous robots (自主机器人)
+e.g. an autonomous weapon system
+3. adj. (个人或组织) 有自主权的，独立的。指能够独立行动或做决策，不受他人或外部因素的支配。
+e.g. autonomous decision-making (自主决策)
+e.g. an autonomous learner (自主学习者)
+e.g. Employees are encouraged to be autonomous in their work.
 
 #联想
 1.形近词/音近词:
-finger /ˈfɪŋɡər/ (n. 手指；v. 用手指触摸)
-disfigure /dɪsˈfɪɡjər/ (v. 损毁...的外形)
+automatic /ˌɔtəˈmætɪk/ (adj. 自动的；n. 自动装置): 指无需人工操作即可自行运行的。与autonomous相比，automatic更侧重于按预设程序或机制自行完成动作，而autonomous则强调系统或实体具有自我管理、决策或规划的能力，通常涉及更高级的智能或自由度。
 
 2.近义词:
-figure (n. 数字, 人物, 身材, 图形；v. 认为, 计算, 出现): 含义广泛，作为名词可以指代数字、人物、图形或体形；作为动词可以表示思考、计算或在某事中扮演角色。
-number /ˈnʌmbər/ (n. 数字, 数量): 主要指用来计数或表示数量的符号或概念。
-digit /ˈdɪdʒɪt/ (n. 数字, 位): 特指阿拉伯数字0到9中的任一个。
+autonomous /ɔˈtɑnəməs/ (adj. 自治的，独立的): 强调实体或系统拥有自我管理、自我决策的权利或能力，不受外部控制。可以用于政治区域、组织机构或智能系统。
+independent /ˌɪndɪˈpendənt/ (adj. 独立的): 最广泛的近义词。指不依赖于他人、不受他人控制或影响的。可用于国家、个人、组织、思想等。
+self-governing /ˈselfˌɡʌvərnɪŋ/ (adj. 自治的): 直接表示能够自我治理、自我管理，通常用于政治实体或行政区域。与autonomous在政治语境下非常接近。
+sovereign /ˈsɑvrən/ (adj. 主权的): 指国家或统治者拥有至高无上的权力，不受外部干涉，强调主权和独立地位。比autonomous和independent更强调国家或政权的终极权力。
+self-reliant /ˌself rɪˈlaɪənt/ (adj. 自力更生的): 侧重于个人或群体依靠自身能力解决问题，不依赖外部帮助或支持，强调自给自足和独立应对挑战的能力。
 
 3. 反义词:
-ignore /ɪɡˈnɔr/ (v. 忽视) (与 figure '认为' 相对)
-unknown /ˌʌnˈnoʊn/ (n. 未知数) (与 figure '数字' 相对)
+dependent /dɪˈpendənt/ (adj. 依赖的，从属的)
+subordinate /səˈbɔrdɪnət/ (adj. 从属的，下级的)
+controlled /kənˈtroʊld/ (adj. 受控制的)
 
 4. 同根词/派生词
-figuration /ˌfɪɡjəˈreɪʃən/ (n. 形状, 图案)
-figurative /ˈfɪɡjərətɪv/ (adj. 比喻的, 象征的)
-figuring /ˈfɪɡjərɪŋ/ (n. 计算, 估计)
+autonomy /ɔˈtɑnəmi/ (n. 自治，自主权)
+autonomously /ɔˈtɑnəməsli/ (adv. 自主地)
+autocrat /ˈɔtəkræt/ (n. 独裁者)
+autocratic /ˌɔtəˈkrætɪk/ (adj. 独裁的)
 
 5. 其他联想词:
-chart /tʃɑrt/ (n. 图表)
-diagram /ˈdaɪəˌɡræm/ (n. 图解)
+robot /ˈroʊbɑt/ (n. 机器人)
+vehicle /ˈviːɪkl/ (n. 车辆)
+decentralization /ˌdiːˌsentrəlɪˈzeɪʃən/ (n. 分散化，权力下放)
+empowerment /ɪmˈpaʊərmənt/ (n. 授权，赋能)
 """
 
 # English instruction for comprehensive word notes

@@ -21,10 +21,10 @@ class Config:
 
     # LuLu Dictionary API settings
     LULUDICT_BASE_URL = "https://api.frdic.com/api/open/v1"
-    LULUDICT_TOKEN = _keys.get('LuLuDict', os.getenv('LULUDICT_TOKEN', ''))
+    LULUDICT_TOKEN = _keys.get('luludict', os.getenv('LULUDICT_TOKEN', ''))
     
     # Gemini API settings
-    GEMINI_API_KEY = _keys.get('Gemini', os.getenv('GEMINI_API_KEY', ''))
+    GEMINI_API_KEY = _keys.get('gemini', os.getenv('GEMINI_API_KEY', ''))
     GEMINI_MODEL = "gemini-2.5-flash"
     
     # Processing settings
