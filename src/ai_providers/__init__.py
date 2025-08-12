@@ -25,6 +25,24 @@ class AIProvider(ABC):
     def generate_word_note(self, word: str, style: str = "chinese") -> str:
         """Generate a word note for the given word"""
         pass
+
+    def generate_multiple_words_note(self, words: list) -> dict:
+        """Generate word notes for multiple words"""
+        num_total_words = len(words)
+        word_notes = {}
+        for i, word in enumerate(words):
+            print(f"📝 Generating note for '{word}' ({i}/{num_total_words})...")
+            try:
+                note = self.generate_word_note(word)
+                word_notes[word] = note
+            except Exception as e:
+                print(f"Error generating note for '{word}': {e}")
+                print(f"Skipping all remaining words...")
+                print(f"🎉 Generated {i+1} successful notes out of {num_total_words} words")
+                return word_notes
+            time.sleep(Config.AI_DELAY)
+            print(f"🎉 Generated {i+1} successful notes out of {num_total_words} words")
+        return word_notes
     
     @abstractmethod
     def get_available_models(self) -> List[str]:
@@ -194,18 +212,15 @@ class AIProviderFactory:
     }
     
     @classmethod
-    def create_provider(cls, provider_type: str, api_key: str, model: str = None) -> AIProvider:
+    def create_provider(cls, provider_type: str, **kwargs) -> AIProvider:
         """Create an AI provider instance"""
         if provider_type not in cls._providers:
             raise ValueError(f"Unknown provider type: {provider_type}")
         
         provider_class = cls._providers[provider_type]
         
-        if model:
-            return provider_class(api_key, model)
-        else:
-            return provider_class(api_key)
-    
+        return provider_class(**kwargs)
+
     @classmethod
     def get_available_providers(cls) -> Dict[str, Dict]:
         """Get information about available providers"""

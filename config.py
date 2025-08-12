@@ -38,7 +38,7 @@ class Config:
     
     # Rate limiting settings
     REQUEST_DELAY = 2.0  # seconds between LuLu Dictionary API requests
-    GEMINI_DELAY = 15.0   # seconds between Gemini API requests (be more conservative)
+    AI_DELAY = 15.0   # seconds between Gemini API requests (be more conservative)
     BATCH_SIZE = 10      # number of words to process in each batch
     
     # File settings

@@ -19,12 +19,11 @@ def main():
         print("Option 1: Processing words from your LuLu Dictionary word list...")
         results = processor.process_word_notes(
             language=Config.DEFAULT_LANGUAGE,
-            category_id=Config.DEFAULT_CATEGORY_ID,
-            max_words=10,  # Limit for testing - remove or increase for full processing
+            # max_words=10,  # Limit for testing - remove or increase for full processing
             delay_between_requests=Config.REQUEST_DELAY,  # Delay for LuLu Dictionary API
-            gemini_delay=Config.GEMINI_DELAY,  # Delay between Gemini API calls
+            ai_delay=Config.AI_DELAY,  # Delay between AI calls
             skip_existing_notes=True,  # Skip words that already have notes
-            processing_mode="batch"  # Use batch processing mode
+            processing_mode="individual"  # Use individual processing mode
         )
         
         # Save results to file
