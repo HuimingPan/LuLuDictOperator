@@ -51,10 +51,11 @@ LuLuDictOperator/
 ```bash
 git clone <repository-url>
 cd LuLuDictOperator
-./setup.sh  # 自动设置（推荐）
+
+python -m venv venv
 ```
 
-或手动安装：
+激活环境，然后安装依赖。
 
 ```bash
 pip install -r requirements.txt
@@ -72,15 +73,15 @@ cp keys.json.example keys.json
 2. 编辑 `keys.json` 文件，填入您的 API 密钥：
 ```json
 {
-    "gemini_api_key": "your_gemini_api_key_here",
-    "luludict_token": "your_luludict_token_here"
+    "Gemini": "your_gemini_api_key_here",
+    "LuLuDict": "your_luludict_token_here",
+    "DeepSeek": "deepseek_api"
 }
 ```
 
-3. 获取 Gemini API 密钥：
    - 访问 [Google AI Studio](https://makersuite.google.com/app/apikey)
-   - 创建新的 API 密钥
-   - 将密钥填入 `keys.json` 的 `gemini_api_key` 字段
+   - 访问 [DeepSeek](https://platform.deepseek.com/api_keys)
+   - 访问 [欧陆词典](https://my.eudic.net/OpenAPI/Authorization)
 
 **注意**: `keys.json` 文件已被添加到 `.gitignore` 中，不会被提交到版本控制系统。
 
@@ -141,65 +142,6 @@ results = processor.process_specific_words(specific_words)
 # 保存结果
 save_results(results)
 ```
-
-### 选项 4：运行示例
-
-```bash
-python examples.py
-```
-
-演示各种使用模式和处理方式。
-
-## ⚙️ 配置
-
-项目使用 `config.py` 中的集中 `Config` 类进行所有设置：
-
-### API 设置
-```python
-# 自动从 keys.json 或环境变量加载
-LULUDICT_TOKEN = "从 keys.json 加载"
-GEMINI_API_KEY = "从 keys.json 或环境变量加载"  
-GEMINI_MODEL = "gemini-2.5-flash"  # 最新模型
-```
-
-### 处理设置
-```python
-# 速率限制（推荐值）
-REQUEST_DELAY = 2.0   # LuLu 词典 API 延迟
-GEMINI_DELAY = 15.0   # Gemini API 延迟（保守设置）
-BATCH_SIZE = 10       # 每批处理的单词数
-
-# 处理默认值
-DEFAULT_LANGUAGE = "en"
-DEFAULT_CATEGORY_ID = 0  # 所有分类
-```
-
-### 方法参数
-```python
-processor.process_word_notes(
-    language="en",                    # 语言代码
-    category_id=0,                   # LuLu 分类（0 = 全部）
-    max_words=None,                  # 单词限制（None = 无限制）
-    delay_between_requests=2.0,      # LuLu API 延迟
-    gemini_delay=15.0,              # Gemini API 延迟  
-    skip_existing_notes=True,        # 跳过已有笔记的单词
-    processing_mode="batch"          # "batch" 或 "individual"
-)
-```
-
-## 📊 处理模式
-
-### 🚀 批处理模式 (`processing_mode="batch"`)
-**适用于**：大数据集，快速处理
-- 首先生成所有笔记，然后一次性上传
-- **优点**：执行速度快，API 调用次数少
-- **缺点**：如果出现错误会完全停止
-
-### 🔍 单独模式 (`processing_mode="individual"`)  
-**适用于**：细致处理，错误恢复
-- 完全处理完一个单词后再处理下一个
-- **优点**：更好的错误处理，失败时可继续
-- **缺点**：速度较慢，API 调用次数更多
 
 ## 📈 结果和输出
 
@@ -302,70 +244,6 @@ diagram /ˈdaɪəˌɡræm/ (n. 图解)
 - 带详细统计的 JSON 结果
 - 可配置的输出文件位置
 - 易于与其他工具集成
-
-## 🧪 测试和示例
-
-### 运行内置示例
-```bash
-python examples.py  # 演示所有处理模式
-```
-
-### 测试独立组件
-```bash
-python -m pytest test/  # 运行测试套件
-```
-
-### 调试模式
-通过修改 Config 类或使用 print 语句添加详细日志。
-
-## 🔧 故障排除
-
-### 常见问题
-
-| 问题 | 解决方案 |
-|-------|----------|
-| **导入错误** | 从项目根目录运行 |
-| **API 密钥错误** | 检查 `keys.json` 文件或设置环境变量 |
-| **速率限制** | 增加配置中的 `gemini_delay` |
-| **找不到单词** | 验证 LuLu 词典令牌和 API 访问 |
-| **网络超时** | 使用单独模式以获得更好的错误恢复 |
-
-### 快速修复
-
-```bash
-# 检查 API 密钥配置
-python -c "from config import Config; print('✅ 配置有效' if Config.validate() else '❌ 配置无效')"
-
-# 测试最少单词数
-python main.py  # 默认使用 max_words=10
-
-# 重新加载密钥配置
-python -c "from config import Config; Config.reload_keys()"
-```
-
-## 📚 文档
-
-- **README.md**（本文件）：主要项目概述
-- **README_LIBRARY.md**：详细的库文档  
-- **examples.py**：可工作的代码示例
-- **config.py**：配置参考
-
-## 🚀 入门检查清单
-
-- [ ] 克隆仓库
-- [ ] 运行 `./setup.sh` 或手动安装依赖
-- [ ] 创建 `keys.json` 文件并填入 API 密钥
-- [ ] 使用 `python examples.py` 测试
-- [ ] 运行 `python main.py` 进行批处理
-- [ ] 检查 `word_notes_results.json` 查看结果
-
-## 🔐 安全注意事项
-
-- ✅ `keys.json` 文件已添加到 `.gitignore`
-- ✅ 不会将 API 密钥提交到版本控制
-- ✅ 支持环境变量作为备选方案
-- ⚠️ 请勿在代码中硬编码 API 密钥
-- ⚠️ 定期轮换您的 API 密钥
 
 ## 🤝 贡献
 
