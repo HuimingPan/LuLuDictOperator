@@ -2,12 +2,12 @@ import requests
 import json
 from typing import Optional, List, Dict, Any
 import time
-
+from config import Config
 
 class LuLuDictClient:
     """A client for interacting with the LuLu Dictionary API."""
     
-    def __init__(self, authorization_token: str, base_url: str = "https://api.frdic.com/api/open/v1"):
+    def __init__(self, authorization_token: str=Config.LULUDICT_TOKEN, base_url: str = "https://api.frdic.com/api/open/v1"):
         """
         Initialize the LuLu Dict client.
         

@@ -15,7 +15,7 @@ from typing import Optional, Dict, List, Union
 from src.luludict.client import LuLuDictClient
 from src.ai_providers import AIProviderFactory
 from config import Config
-
+from datetime import datetime
 
 class WordNoteProcessor:
     """
@@ -195,17 +195,12 @@ class WordNoteProcessor:
 
         words_with_notes = self.luludict_client.get_all_words_with_notes(language=language, page_size=600)
 
+        base_time = datetime(2025, 7, 24)
+
         for word in words_with_notes:
-            if word.get("word") and word.get("add_time"):
-                if (word["add_time"].startswith("2025-08") or
-                    word["add_time"].startswith("2025-07-28") or
-                    word["add_time"].startswith("2025-07-27") or
-                    word["add_time"].startswith("2025-07-26") or
-                    word["add_time"].startswith("2025-07-25") or
-                    word["add_time"].startswith("2025-07-24")):
-                    words_excluded.append(word["word"])
-        for word in words:
-            if word not in words_excluded:
+            if word.get("add_time") and datetime.strptime(word["add_time"], "%Y-%m-%dT%H:%M:%SZ") > base_time:
+                    words_excluded.append(word)
+            else:
                 words_without_notes.append(word)
         print(f"❌ Found {len(words_excluded)} words to be excluded from processing")
         print(f"✅ Found {len(words_without_notes)} words to be included for processing")

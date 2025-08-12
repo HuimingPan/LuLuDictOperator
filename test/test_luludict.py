@@ -74,14 +74,13 @@ class TestLuluDict(unittest.TestCase):
         words_excluded = []
         print(f"🔍 Checking which words already have notes...")
 
-        words_with_notes = self.client.get_all_words_with_notes( page_size=600)
+        words_with_notes = self.client.get_all_words_with_notes(page_size=1000)
+        
+        from datetime import datetime, time
 
+        base_time = datetime(2025, 7, 24)
         for word in words_with_notes:
-            if word.get("word") and word.get("add_time"):
-                if (word["add_time"].startswith("2025-07-28") or
-                    word["add_time"].startswith("2025-07-27") or
-                    word["add_time"].startswith("2025-07-26") or
-                    word["add_time"].startswith("2025-07-25") or
-                    word["add_time"].startswith("2025-07-24")):
+            if word.get("add_time") and datetime.strptime(word["add_time"], "%Y-%m-%dT%H:%M:%SZ") > base_time:
                     words_excluded.append(word)
-        print(f"❌ Found {len(words_excluded)} words to be excluded from processing")
+        print(f"❌ Found {len(words_excluded)}/{len(words_with_notes)} words to be excluded from processing")
+        self.assertGreater(len(words_excluded), 0)
