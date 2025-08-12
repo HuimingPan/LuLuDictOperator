@@ -46,8 +46,8 @@ class Config:
     LOGS_FILE = "word_processor.log"
 
     SYSTEM_INSTRUCTION = """
-    给出单词的联想词和常用的搭配。其他要求如下：
-    - 所有联想词单词都是常见词，限定在 CET-4/CET-6 高级词汇范围内。
+    给出单词的联想词和常用的搭配。具体要求如下：
+    - 所有联想词单词都是常见词;
     - 音标遵循美式发音;
     - 内容包括常见用法及搭配，形近词/音近词，近义词，反义词，同根词，其他联想词
     - 考虑单词全部常用的词义、词性
@@ -56,57 +56,54 @@ class Config:
     - 返回的内容中，不要使用加粗或者斜体，即不要使用 * 符号。
     - 不要出现连续的两个空行。
 
-    如对于单词 figure，返回：
+    如对于单词 ballot，返回
     #用法
-    1. N. 数字，数目。代表数量、顺序等的符号。
-    e.g. in figures (用数字表示)
-    e.g. sales figures (销售数据)
-    e.g. budget figures (预算数据)
-    e.g. unemployment figures (失业数据)
-    e.g. Write the amount in words and figures.
-    2. N. 人物。指一个特定的人，尤指重要或有名望的人。
-    e.g. high-profile/prominent/public/historical/political figure
-    e.g. She's a leading figure in the fashion world.
-    e.g. a stick figure (火柴人, 简笔画小人)
-    3. N. 身材，体形。指人的身体的形状或轮廓。
-    e.g. a slim/slender/full figure (苗条的/丰满的身材)
-    e.g. She has a slender figure.
-    4. N. 图形，图表。用于说明信息或数据的视觉表示。
-    e.g. Please refer to Figure 3 for more details.
-    5. VT. 认为，估计。在思考后得出结论或判断。
-    e.g. figure in (考虑在内, 参与)
-    e.g. figure on (指望, 预计)
-    e.g. I figured he'd be late.
-    6. VT. 计算。通过数学运算确定数量。
-    e.g. figure out (弄懂, 算出)
-    e.g. Can you figure out the total cost?
-    7. VI. 出现，扮演角色。在某事中起到作用或参与。
-    e.g. figure prominently (显著地出现)
-    e.g. He figures prominently in the story.
+    1. N. 选票。指用于投票的纸张或电子记录，也指投票的行为。
+    e.g. cast a ballot (投票)
+    e.g. secret ballot (无记名投票)
+    e.g. a ballot box (投票箱)
+    e.g. The results of the ballot will be announced tomorrow.
+    e.g. They held a ballot to choose a new leader.
+    2. V. （通过投票）选举；投票表决。指通过投选票的方式进行选举或表决。
+    e.g. ballot for (投票支持)
+    e.g. ballot against (投票反对)
+    e.g. ballot on (对...进行投票)
+    e.g. Union members balloted on the proposed changes.
 
     #联想
     1.形近词/音近词:
-    finger /ˈfɪŋɡər/ (n. 手指；v. 用手指触摸)
-    disfigure /dɪsˈfɪɡjər/ (v. 损毁...的外形)
+    * billet /ˈbɪlɪt/ (n. 兵营；v. 驻扎)
+    * ballet /ˈbæleɪ/ (n. 芭蕾舞)
+    * callot (无常见词)
 
     2.近义词:
-    figure (n. 数字, 人物, 身材, 图形；v. 认为, 计算, 出现): 含义广泛，作为名词可以指代数字、人物、图形或体形；作为动词可以表示思考、计算或在某事中扮演角色。
-    number /ˈnʌmbər/ (n. 数字, 数量): 主要指用来计数或表示数量的符号或概念。
-    digit /ˈdɪdʒɪt/ (n. 数字, 位): 特指阿拉伯数字0到9中的任一个。
+    * ballot (n. 选票, 投票；v. 选举, 投票表决): 强调通过纸质或电子选票进行的投票行为，可以是选举或表决。
+    * vote /voʊt/ (n. 投票，选票；v. 投票): 最普遍的词，泛指通过表达意愿来做出选择或决定，可以是口头、举手或书面。
+    * poll /poʊl/ (n. 民意调查，投票；v. 对...进行民意调查): 指对公众意见的调查，或投票站的投票过程，强调统计结果。
+    * election /ɪˈlɛkʃən/ (n. 选举): 指通过投票选择代表或领导人的正式过程。
+    * referendum /ˌrɛfəˈrɛndəm/ (n. 公民投票，全民公决): 指就某项特定议题举行的全民投票。
+    * plebiscite /ˈplɛbəˌsaɪt/ (n. 公民投票，全民公决): 与 referendum 相似，通常指就某一重大政治问题进行的直接投票。
+    * franchise /ˈfrænˌtʃaɪz/ (n. 选举权，特许经营权): 指公民的投票权，或商业上的特许经营权。
 
     3. 反义词:
-    ignore /ɪɡˈnɔr/ (v. 忽视) (与 figure '认为' 相对)
-    unknown /ˌʌnˈnoʊn/ (n. 未知数) (与 figure '数字' 相对)
+    * appointment /əˈpɔɪntmənt/ (n. 任命)
+    * designation /ˌdɛzɪɡˈneɪʃən/ (n. 指定，任命)
+    * disenfranchisement /ˌdɪsɪnˈfrænˌtʃaɪzmənt/ (n. 剥夺选举权)
 
     4. 同根词/派生词
-    figuration /ˌfɪɡjəˈreɪʃən/ (n. 形状, 图案)
-    figurative /ˈfɪɡjərətɪv/ (adj. 比喻的, 象征的)
-    figuring /ˈfɪɡjərɪŋ/ (n. 计算, 估计)
+    * balloter /ˈbælətər/ (n. 投票人)
 
     5. 其他联想词:
-    chart /tʃɑrt/ (n. 图表)
-    diagram /ˈdaɪəˌɡræm/ (n. 图解)
-    """
+    * democracy /dɪˈmɑkrəsi/ (n. 民主)
+    * candidate /ˈkændɪdət/ (n. 候选人)
+    * elector /ɪˈlɛktər/ (n. 选民)
+    * constituency /kənˈstɪtʃuənsi/ (n. 选区，选民)
+    * campaign /kæmˈpeɪn/ (n. 竞选活动；v. 参加竞选)
+    * government /ˈɡʌvərnmənt/ (n. 政府)
+    * legislation /ˌlɛdʒɪsˈleɪʃən/ (n. 立法)
+    * reform /rɪˈfɔrm/ (n. 改革；v. 改革)
+    * transparency /trænsˈpɛrənsi/ (n. 透明度)  
+  """
     
     @classmethod
     def validate(cls) -> bool:

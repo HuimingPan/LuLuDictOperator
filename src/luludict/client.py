@@ -54,7 +54,8 @@ class LuLuDictClient:
             print(f"Error retrieving word list: {e}")
             return {"error": str(e)}
     
-    def get_all_words(self, language: str = "en", category_id: int = 0, 
+    def get_all_words(self, language: str = "en", 
+                     category_id: int = 0, 
                      max_pages: Optional[int] = None,
                      words_per_page: int = 100) -> List[str]:
         """
@@ -69,6 +70,7 @@ class LuLuDictClient:
             List[str]: List of all words.
         """
         all_words = []
+        words_data = []
         page = 0
         
         try:
@@ -84,21 +86,22 @@ class LuLuDictClient:
                     break
                 
                 # Extract words from response (adjust based on actual API response structure)
-                words_data = response.get("data", {})
-                page_words = [item.get("word") for item in words_data if isinstance(item, dict)]
-                if not page_words:
-                    print(f"No more words found on page {page}")
+                page_words_data = response.get("data", [])
+                if not page_words_data:
+                    #No more words found on subsequent pages
                     break
-                
-                all_words.extend(page_words)
-                print(f"Found {len(page_words)} words on page {page}")
-                
+                print(f"Found {len(page_words_data)} words on page {page}")
+
+                words_data.extend(page_words_data)
                 page += 1
                 time.sleep(2)  # Rate limiting
         except requests.exceptions.RequestException as e:
             print(f"Error retrieving words: {e}")
             return []
-        
+
+        # sort by star
+        words_data = sorted(words_data, key=lambda x: x.get("star", ""), reverse=True)
+        all_words = [word.get("word") for word in words_data if isinstance(word, dict)]
         print(f"Total words retrieved: {len(all_words)}")
         return all_words
     

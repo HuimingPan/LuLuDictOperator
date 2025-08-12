@@ -47,7 +47,7 @@ class WordNoteProcessor:
                           language: str = "en", 
                           max_words: Optional[int] = None, 
                           delay_between_requests: float = 2.0,
-                          ai_delay: float = 15.0,
+                          ai_delay: float = Config.AI_DELAY,
                           skip_existing_notes: bool = True,
                           processing_mode: str = "batch") -> Dict[str, Union[str, int, List]]:
         """

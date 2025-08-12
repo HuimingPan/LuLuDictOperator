@@ -21,7 +21,7 @@ def main():
             language=Config.DEFAULT_LANGUAGE,
             # max_words=10,  # Limit for testing - remove or increase for full processing
             delay_between_requests=Config.REQUEST_DELAY,  # Delay for LuLu Dictionary API
-            ai_delay=Config.AI_DELAY,  # Delay between AI calls
+            ai_delay=0.1,  # Delay between AI calls
             skip_existing_notes=True,  # Skip words that already have notes
             processing_mode="individual"  # Use individual processing mode
         )

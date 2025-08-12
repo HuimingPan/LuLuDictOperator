@@ -28,11 +28,12 @@ class TestLuluDict(unittest.TestCase):
 
     def test_get_all_words(self):
         """Test retrieving all words."""
-        words = self.client.get_all_words(language="en", category_id=0, words_per_page=600)
+        words = self.client.get_all_words(language="en", words_per_page=600)
         
         self.assertIsInstance(words, list)
         self.assertGreater(len(words), 0)
         print(f"Total words retrieved: {len(words)}")
+        print(words[:5])
         self.assertIsInstance(words[0], str)
 
     def test_get_word_note(self):
