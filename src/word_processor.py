@@ -13,7 +13,7 @@ import time
 from typing import Optional, Dict, List, Union
 
 from src.luludict.client import LuLuDictClient
-from src.gemini.tools import GeminiWordNoteGenerator
+from src.ai_providers import AIProviderFactory
 from config import Config
 
 
@@ -23,30 +23,32 @@ class WordNoteProcessor:
     
     This class provides a comprehensive interface for:
     - Retrieving word lists from LuLu Dictionary
-    - Generating notes using Gemini AI with rate limiting
+    - Generating notes using  AI with rate limiting
     - Uploading generated notes back to LuLu Dictionary
     - Processing individual or batch words
     - Skipping words that already have notes
     """
     
-    def __init__(self, luludict_token: str, gemini_api_key: Optional[str] = None):
+    def __init__(self, luludict_token: str, 
+                 ai_provider: str = Config.DEFAULT_AI_PROVIDER,
+                 ):
         """
         Initialize the word note processor.
         
         Args:
             luludict_token (str): Authorization token for LuLu Dictionary API
-            gemini_api_key (str, optional): Gemini API key. If not provided, 
+            _api_key (str, optional): Gemini API key. If not provided, 
                                           will try to get from GEMINI_API_KEY environment variable.
         """
         self.luludict_client = LuLuDictClient(luludict_token)
-        self.gemini_generator = GeminiWordNoteGenerator(gemini_api_key)
-        
+        self.ai_generator = AIProviderFactory.create_provider(ai_provider)
+
     def process_word_notes(self, 
                           language: str = "en", 
                           category_id: int = 0, 
                           max_words: Optional[int] = None, 
                           delay_between_requests: float = 2.0,
-                          gemini_delay: float = 15.0,
+                          ai_delay: float = 15.0,
                           skip_existing_notes: bool = True,
                           processing_mode: str = "batch") -> Dict[str, Union[str, int, List]]:
         """
@@ -97,13 +99,13 @@ class WordNoteProcessor:
         
         # Choose processing mode
         if processing_mode == "individual":
-            return self._process_words_individually(words, language, gemini_delay)
+            return self._process_words_individually(words, language, ai_delay)
         else:
-            return self._process_words_in_batch(words, language, gemini_delay, delay_between_requests)
-    
-    def _process_words_individually(self, words: List[str], language: str, gemini_delay: float) -> Dict:
+            return self._process_words_in_batch(words, language, ai_delay, delay_between_requests)
+
+    def _process_words_individually(self, words: List[str], language: str, ai_delay: float) -> Dict:
         """Process words one by one (update_notes.py style)."""
-        print(f"\n🔄 Processing words individually with {gemini_delay}s delay...")
+        print(f"\n🔄 Processing words individually with {ai_delay}s delay...")
         
         word_notes = {}
         successful_uploads = []
@@ -141,9 +143,9 @@ class WordNoteProcessor:
                 
                 # Add delay between words
                 if i < len(words):
-                    print(f"  ⏳ Waiting {gemini_delay}s before next word...")
-                    time.sleep(gemini_delay)
-                    
+                    print(f"  ⏳ Waiting {ai_delay}s before next word...")
+                    time.sleep(ai_delay)
+
             except Exception as e:
                 print(f"  ❌ Error processing '{word}': {e}")
                 failed_uploads.append(word)
@@ -253,7 +255,7 @@ class WordNoteProcessor:
     def generate_notes_for_words(self, 
                                words: List[str], 
                                language: str = "en", 
-                               gemini_delay: float = 15.0,
+                               ai_delay: float = 15.0,
                                stop_on_error: bool = True) -> Dict[str, str]:
         """
         Generate notes for a list of words using Gemini with rate limiting.
@@ -276,14 +278,14 @@ class WordNoteProcessor:
             print(f"📝 Generating note for '{word}' ({i}/{total_words})...")
             
             try:
-                note = self.gemini_generator.generate_word_note(word, language)
+                note = self.ai_generator.generate_word_note(word, language)
                 notes[word] = note
                 print(f"  ✅ Generated note for '{word}' ({len(note)} characters)")
                 
-                # Add delay between Gemini API calls (except for the last word)
+                # Add delay between ai API calls (except for the last word)
                 if i < total_words:
-                    print(f"  ⏳ Waiting {gemini_delay}s before next API call...")
-                    time.sleep(gemini_delay)
+                    print(f"  ⏳ Waiting {ai_delay}s before next API call...")
+                    time.sleep(ai_delay)
                     
             except Exception as e:
                 print(f"  ❌ Error generating note for '{word}': {e}")
@@ -322,7 +324,7 @@ class WordNoteProcessor:
     def process_specific_words(self, 
                              words: List[str], 
                              language: str = "en", 
-                             gemini_delay: float = 2.0, 
+                             ai_delay: float = 2.0, 
                              luludict_delay: float = 1.0) -> Dict[str, Union[Dict, str]]:
         """
         Process specific words instead of retrieving from word list.
@@ -330,7 +332,7 @@ class WordNoteProcessor:
         Args:
             words (List[str]): List of specific words to process
             language (str): Language code (default: "en")
-            gemini_delay (float): Delay between Gemini API calls in seconds
+            ai_delay (float): Delay between ai API calls in seconds
             luludict_delay (float): Delay between LuLu Dictionary API calls in seconds
             
         Returns:
@@ -339,8 +341,8 @@ class WordNoteProcessor:
         print(f"🚀 Processing {len(words)} specific words...")
         
         # Generate notes
-        print("🤖 Generating notes using Gemini AI...")
-        word_notes = self.generate_notes_for_words(words, language, gemini_delay, stop_on_error=False)
+        print("🤖 Generating notes using ai AI...")
+        word_notes = self.generate_notes_for_words(words, language, ai_delay, stop_on_error=False)
         
         # Upload notes
         print("📝 Uploading notes to LuLu Dictionary...")
@@ -366,8 +368,8 @@ class WordNoteProcessor:
         
         try:
             # Generate note
-            print("🤖 Generating note using Gemini AI...")
-            word_note = self.gemini_generator.generate_word_note(word, language)
+            print("🤖 Generating note using AI...")
+            word_note = self.ai_generator.generate_word_note(word, language)
             
             # Upload note
             print("📝 Uploading note to LuLu Dictionary...")
@@ -418,7 +420,9 @@ class WordNoteProcessor:
             print(f"   - Failed uploads: {summary.get('failed_uploads', 0)}")
 
 
-def create_processor_from_config() -> WordNoteProcessor:
+def create_processor_from_config(
+       ai_provider: str = Config.DEFAULT_AI_PROVIDER,
+) -> WordNoteProcessor:
     """
     Create a WordNoteProcessor instance using configuration settings.
     
@@ -433,7 +437,7 @@ def create_processor_from_config() -> WordNoteProcessor:
     
     return WordNoteProcessor(
         luludict_token=Config.LULUDICT_TOKEN,
-        gemini_api_key=Config.GEMINI_API_KEY
+        ai_provider=ai_provider,
     )
 
 

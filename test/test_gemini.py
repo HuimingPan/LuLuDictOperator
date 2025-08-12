@@ -9,7 +9,7 @@ import unittest
 # Add src to path for imports
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src'))
 
-from src.gemini.tools import GeminiWordNoteGenerator
+from src.ai_providers import GeminiProvider
 
 
 class TestGeminiAPI(unittest.TestCase):
@@ -19,16 +19,17 @@ class TestGeminiAPI(unittest.TestCase):
         # Check if API key is available
         if not os.getenv('GEMINI_API_KEY'):
             self.skipTest("GEMINI_API_KEY environment variable not set")
-    
+
+        self.ai_provider = GeminiProvider()
+
     def test_gemini_connection(self):
         """Test connection to Gemini API."""
         print("Testing Gemini API connection...")
         
         try:
-            generator = GeminiWordNoteGenerator()
             
             # Test with a simple prompt
-            response = generator.model.generate_content("Say hello")
+            response = self.ai_provider.generate_content("Say hello")
             
             if response and response.text:
                 print("✅ Successfully connected to Gemini API")
@@ -51,10 +52,9 @@ class TestGeminiAPI(unittest.TestCase):
         print("Testing single word note generation...")
         
         try:
-            generator = GeminiWordNoteGenerator()
             word = "ephemeral"
-            note = generator.generate_word_note(word)
-            
+            note = self.ai_provider.generate_word_note(word)
+
             print(f"\n{'='*50}")
             print(f"Note for '{word}':")
             print(f"{'='*50}")
@@ -77,10 +77,9 @@ class TestGeminiAPI(unittest.TestCase):
         print("Testing batch word note generation...")
         
         try:
-            generator = GeminiWordNoteGenerator()
             words = ["serendipity", "ubiquitous"]
-            notes = generator.generate_batch_notes(words)
-            
+            notes = self.ai_provider.generate_batch_notes(words)
+
             for word, note in notes.items():
                 print(f"\n{'-'*30}")
                 print(f"Note for '{word}':")
@@ -107,10 +106,9 @@ class TestGeminiAPI(unittest.TestCase):
         print("Testing Chinese-style note generation...")
         
         try:
-            generator = GeminiWordNoteGenerator()
             word = "figure"
-            note = generator.generate_word_note(word, style="chinese")
-            
+            note = self.ai_provider.generate_word_note(word, style="chinese")
+
             print(f"\n{'='*50}")
             print(f"Chinese-style note for '{word}':")
             print(f"{'='*50}")
@@ -142,20 +140,20 @@ def standalone_test():
     try:
         # Test basic functionality
         print("\n1. Testing basic connection...")
-        generator = GeminiWordNoteGenerator()
+        ai_provider = GeminiProvider()
         print("✅ Generator initialized successfully")
         
         # Test single word
         print("\n2. Testing single word generation...")
         word = "ephemeral"
-        note = generator.generate_word_note(word)
+        note = ai_provider.generate_word_note(word)
         print(f"✅ Generated note for '{word}' ({len(note)} characters)")
         print(f"Preview: {note[:100]}...")
         
         # Test batch
         print("\n3. Testing batch generation...")
         words = ["serendipity"]
-        notes = generator.generate_batch_notes(words)
+        notes = ai_provider.generate_batch_notes(words)
         print(f"✅ Generated {len(notes)} notes")
         
         print("\n🎉 All tests passed!")
