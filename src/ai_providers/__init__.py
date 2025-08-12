@@ -164,7 +164,7 @@ class DeepSeekProvider(AIProvider):
                 {"role": "system", "content": system_instruction},
                 {"role": "user", "content": user_prompt}
             ],
-            "max_tokens": 1500,
+            # "max_tokens": 1500,
             "temperature": 1.3
         })
 
