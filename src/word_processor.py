@@ -189,23 +189,22 @@ class WordNoteProcessor:
         Returns:
             List[str]: Words that don't have notes yet
         """
-        words_without_notes = []
-        words_excluded = []
+        words_to_process = words.copy()
+        words_to_exclude = []
         print(f"🔍 Checking which words already have notes...")
 
         words_with_notes = self.luludict_client.get_all_words_with_notes(language=language, page_size=600)
-
         base_time = datetime(2025, 7, 24)
 
         for word in words_with_notes:
             if word.get("add_time") and datetime.strptime(word["add_time"], "%Y-%m-%dT%H:%M:%SZ") > base_time:
-                    words_excluded.append(word)
-            else:
-                words_without_notes.append(word)
-        print(f"❌ Found {len(words_excluded)} words to be excluded from processing")
-        print(f"✅ Found {len(words_without_notes)} words to be included for processing")
-        return words_without_notes
-    
+                words_to_exclude.append(word)
+                if word['word'] in words_to_process:
+                    words_to_process.remove(word["word"])
+        print(f"❌ Found {len(words_to_exclude)} words to be excluded from processing")
+        print(f"✅ Found {len(words_to_process)} words to be included for processing")
+        return words_to_process
+
     def retrieve_word_list(self, 
                           language: str = "en", 
                           category_id: int = 0, 
