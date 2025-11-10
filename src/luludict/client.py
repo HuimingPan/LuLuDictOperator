@@ -104,6 +104,66 @@ class LuLuDictClient:
         all_words = [word.get("word") for word in words_data if isinstance(word, dict)]
         print(f"Total words retrieved: {len(all_words)}")
         return all_words
+
+    def update_word_star(self, word: str, star: int, language: str = "en") -> Dict[str, Any]:
+        """Update the star rating for a word.
+
+        Args:
+            word (str): Target word to update.
+            star (int): Desired star rating (0-5).
+            language (str): Language code for the word list.
+
+        Returns:
+            Dict[str, Any]: API response or error information.
+        """
+
+        if not word:
+            return {"error": "Word must be provided."}
+
+        if not isinstance(star, int) or not (0 <= star <= 5):
+            return {"error": "Star rating must be an integer between 0 and 5."}
+
+        payload = {
+            "language": language,
+            "word": word,
+            "star": star
+        }
+
+        endpoints = [
+            f"{self.base_url}/studylist/word/star",
+            f"{self.base_url}/studylist/word"
+        ]
+
+        last_error: Optional[str] = None
+
+        for url in endpoints:
+            try:
+                response = self.session.post(url, json=payload)
+                response.raise_for_status()
+
+                try:
+                    data = response.json() if response.content else {}
+                except ValueError:
+                    data = {"raw": response.text}
+
+                return {
+                    "success": True,
+                    "message": data.get("message"),
+                    "data": data,
+                    "endpoint": url
+                }
+            except requests.exceptions.HTTPError as http_error:
+                status_code = getattr(http_error.response, "status_code", None)
+                if status_code in {404, 405}:
+                    last_error = f"Endpoint {url} returned status {status_code}"
+                    continue
+                last_error = str(http_error)
+                break
+            except requests.exceptions.RequestException as request_error:
+                last_error = str(request_error)
+                break
+
+        return {"error": last_error or "Failed to update word star."}
     
     def add_word_note(self, word: str, note: str, language: str = "en") -> Dict[str, Any]:
         """
